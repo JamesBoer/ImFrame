@@ -24,9 +24,17 @@ THE SOFTWARE.
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
+#else
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <GL/glx.h>
+#endif
+
 #include <linmath.h>
 #include <stdlib.h>
 #include <stddef.h>
