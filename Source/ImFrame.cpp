@@ -24,7 +24,9 @@ THE SOFTWARE.
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <gl/GL.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <GL/glx.h>
 #include <linmath.h>
 #include <stdlib.h>
 #include <stddef.h>
