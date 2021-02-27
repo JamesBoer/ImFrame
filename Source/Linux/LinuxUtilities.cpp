@@ -22,17 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
+#include <unistd.h>
+#include <pwd.h>
+
 #include "../ImfInternal.h"
 
-/*! \namespace */
 namespace ImFrame
 {
 
-
-	std::string GetConfigFolder([[maybe_unused]]const std::string & companyName, [[maybe_unused]] const std::string & appName)
+	std::string GetOsConfigFolder()
 	{
-		return "";
+		char * rootDir = getenv("XDG_CONFIG_HOME");
+		std::string folder;
+		if (!rootDir)
+		{
+			rootDir = getenv("HOME");
+			if (!rootDir)
+			{
+				rootDir = getpwuid(getuid())->pw_dir;
+				if (!rootDir)
+					return std::string();
+			}
+			folder = rootDir;
+			folder += "/.config";
+		}	
+		return folder;
 	}
-
 
 }

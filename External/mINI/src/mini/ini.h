@@ -108,7 +108,7 @@ namespace mINI
 		inline void toLower(std::string& str)
 		{
 			std::transform(str.begin(), str.end(), str.begin(), [](const char c) {
-				return static_cast<const char>(std::tolower(c));
+				return std::tolower(c);
 			});
 		}
 #endif
@@ -129,7 +129,7 @@ namespace mINI
 #else
 		const std::string endl = "\n";
 #endif
-	};
+	}
 
 	template<typename T>
 	class INIMap
@@ -324,7 +324,7 @@ namespace mINI
 			}
 			return PDataType::PDATA_UNKNOWN;
 		}
-	};
+	}
 
 	class INIReader
 	{
