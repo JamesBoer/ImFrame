@@ -24,28 +24,26 @@ THE SOFTWARE.
 
 #pragma once
 
-// Platform definitions
-#if defined(_WIN32) || defined(_WIN64)
-#define IMFRAME_WINDOWS
-#pragma warning(push)
-#pragma warning(disable : 4530) // Silence warnings if exceptions are disabled
+
+#include "ImFrame.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#if defined(IMFRAME_MACOS)
+#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#include <OpenGL/gl3.h>
+#include <OpenGL/gl3ext.h>
+#elif defined(IMFRAME_LINUX)
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <GL/glx.h>
+#elif defined(IMFRAME_WINDOWS)
+#include <gl/GL.h>
 #endif
 
-#if defined(__linux__) || defined(__linux)
-#define IMFRAME_LINUX
-#endif
+#include <linmath.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdio.h>
 
-#ifdef __APPLE__
-#ifdef __MACH__
-#define IMFRAME_MACOS
-#endif
-#endif
-
-
-/*! \namespace */
-namespace ImFrame
-{
-
-    void RunImFrame();
-
-}

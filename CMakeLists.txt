@@ -40,6 +40,7 @@ set(
 	source_list
 	"Source/ImFrame.cpp"
 	"Source/ImFrame.h"
+	"Source/ImFrameInternal.h"
 )
 add_library(ImFrame ${source_list})
 target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot)
