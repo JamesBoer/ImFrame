@@ -22,17 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#import <Cocoa/Cocoa.h>
+
 #include "../ImfInternal.h"
 
-/*! \namespace */
 namespace ImFrame
 {
 
-
-	std::string GetConfigFolder([[maybe_unused]]const std::string & companyName, [[maybe_unused]] const std::string & appName)
+	std::string GetOsConfigFolder()
 	{
-		return "";
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *path = [paths objectAtIndex:0];
+        const char * str = [path UTF8String];
+        return std::string(str);
 	}
-
 
 }
