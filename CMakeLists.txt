@@ -38,10 +38,35 @@ set_property(TARGET Implot PROPERTY FOLDER "External")
 # Add source files and dependencies to library
 set(
 	source_list
+	"Source/ImfGLDemo.cpp"
+	"Source/ImfGLDemo.h"
+	"Source/ImfInternal.h"
 	"Source/ImFrame.cpp"
 	"Source/ImFrame.h"
-	"Source/ImFrameInternal.h"
+	"Source/ImfUtilities.cpp"
+	"Source/ImfUtilities.h"
 )
+if(WIN32)
+	list(
+		APPEND
+		source_list
+		"Source/WinPC/WinPCUtilities.cpp"
+	)
+endif()
+if(APPLE)
+	list(
+		APPEND
+		source_list
+		"Source/macOS/macOSUtilities.mm"
+	)
+endif()
+if(UNIX AND NOT APPLE)
+	list(
+		APPEND
+		source_list
+		"Source/Linux/LinuxUtilities.cpp"
+	)
+endif()
 add_library(ImFrame ${source_list})
 target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot)
 
@@ -59,6 +84,7 @@ target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui"
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Implot")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/linmath")
+target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 
 # Check if Imframe is included via add_subdirectory.
 get_directory_property(imframe_is_subproject PARENT_DIRECTORY)

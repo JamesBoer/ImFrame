@@ -24,11 +24,10 @@ THE SOFTWARE.
 
 #pragma once
 
-
-#include "ImFrame.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <linmath.h>
+#include <mini/ini.h>
 
 #if defined(IMFRAME_MACOS)
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
@@ -42,8 +41,18 @@ THE SOFTWARE.
 #include <gl/GL.h>
 #endif
 
-#include <linmath.h>
+#include <string>
+#include <filesystem>
+#include <cassert>
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
 
+#include "ImFrame.h"
+#include "ImfUtilities.h"
+#include "ImfGLDemo.h"
+
+namespace ImFrame
+{
+	std::string GetOsConfigFolder();
+}

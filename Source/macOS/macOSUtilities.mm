@@ -22,29 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
+#include "../ImfInternal.h"
 
-// Platform definitions
-#if defined(_WIN32) || defined(_WIN64)
-#define IMFRAME_WINDOWS
-#pragma warning(push)
-#pragma warning(disable : 4530) // Silence warnings if exceptions are disabled
-#endif
-
-#if defined(__linux__) || defined(__linux)
-#define IMFRAME_LINUX
-#endif
-
-#ifdef __APPLE__
-#ifdef __MACH__
-#define IMFRAME_MACOS
-#endif
-#endif
-
-
+/*! \namespace */
 namespace ImFrame
 {
 
-    void RunImFrame();
+
+	std::string GetConfigFolder([[maybe_unused]]const std::string & companyName, [[maybe_unused]] const std::string & appName)
+	{
+		return "";
+	}
+
 
 }

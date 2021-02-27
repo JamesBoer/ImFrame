@@ -22,29 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
 
-// Platform definitions
-#if defined(_WIN32) || defined(_WIN64)
-#define IMFRAME_WINDOWS
-#pragma warning(push)
-#pragma warning(disable : 4530) // Silence warnings if exceptions are disabled
-#endif
 
-#if defined(__linux__) || defined(__linux)
-#define IMFRAME_LINUX
-#endif
-
-#ifdef __APPLE__
-#ifdef __MACH__
-#define IMFRAME_MACOS
-#endif
-#endif
-
+#include "ImfInternal.h"
 
 namespace ImFrame
 {
 
-    void RunImFrame();
+	std::string GetConfigFolder(const std::string & companyName, const std::string & appName)
+	{
+		assert(!appName.empty());
+		using namespace std;
+		namespace fs = std::filesystem;
+		fs::path p = GetOsConfigFolder();
+		p.append(companyName);
+		p.append(appName);
+		if (!fs::exists(p))
+			fs::create_directories(p);
+		return p.string();
+	}
 
 }
