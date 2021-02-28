@@ -25,25 +25,9 @@ THE SOFTWARE.
 #pragma once
 
 
-#include "ImFrame.h"
+namespace ImFrame
+{
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+    std::string GetConfigFolder(const std::string & companyName, const std::string & appName);
 
-#if defined(IMFRAME_MACOS)
-#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#elif defined(IMFRAME_LINUX)
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glx.h>
-#elif defined(IMFRAME_WINDOWS)
-#include <gl/GL.h>
-#endif
-
-#include <linmath.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
-
+}

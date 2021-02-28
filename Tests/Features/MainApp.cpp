@@ -22,46 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
+#include "MainApp.h"
 
-#include <imgui.h>
-#include <implot.h>
+using namespace Feature;
 
-#include <memory>
-#include <string>
-#include <functional>
-
-// Platform definitions
-#if defined(_WIN32) || defined(_WIN64)
-#define IMFRAME_WINDOWS
-#pragma warning(push)
-#pragma warning(disable : 4530) // Silence warnings if exceptions are disabled
-#endif
-#if defined(__linux__) || defined(__linux)
-#define IMFRAME_LINUX
-#endif
-#ifdef __APPLE__
-#ifdef __MACH__
-#define IMFRAME_MACOS
-#endif
-#endif
-
-namespace ImFrame
+void MainApp::OnUpdate()
 {
-	class ImApp
-	{
-	public:
-		virtual ~ImApp() {}
-		virtual void OnUpdate() = 0;
-
-	private:
-
-	};
-
-	using ImAppPtr = std::unique_ptr<ImApp>;
-
-	using ImAppCreateFn = std::function<ImAppPtr(void)>;
-
-    void RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn);
-
+	static bool showImGuiDemo = true;
+	if (showImGuiDemo)
+		ImGui::ShowDemoWindow(&showImGuiDemo);
+	static bool showImPlotDemo = true;
+	if (showImPlotDemo)
+		ImPlot::ShowDemoWindow(&showImPlotDemo);
 }

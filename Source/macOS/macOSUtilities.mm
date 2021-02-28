@@ -22,24 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#import <Cocoa/Cocoa.h>
 
-#include "../../Source/ImFrame.h"
+#include "../ImfInternal.h"
 
-using namespace ImFrame;
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <SDKDDKVer.h>
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-//int APIENTRY _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
-int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
-#else
-int main(int argc, char ** argv)
-#endif
+namespace ImFrame
 {
 
-	RunImFrame();
+	std::string GetOsConfigFolder()
+	{
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *path = [paths objectAtIndex:0];
+        const char * str = [path UTF8String];
+        return std::string(str);
+	}
 
-    return 0;
 }
-
