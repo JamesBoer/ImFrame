@@ -45,6 +45,10 @@ set(
 	"Source/ImFrame.h"
 	"Source/ImfUtilities.cpp"
 	"Source/ImfUtilities.h"
+	"Source/ImGui/imgui_impl_glfw.cpp"
+	"Source/ImGui/imgui_impl_glfw.h"
+	"Source/ImGui/imgui_impl_opengl3.cpp"
+	"Source/ImGui/imgui_impl_opengl3.h"
 )
 if(WIN32)
 	list(
@@ -86,18 +90,29 @@ target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Implo
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/linmath")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 
+# Create folder structure
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
+
 # Check if Imframe is included via add_subdirectory.
 get_directory_property(imframe_is_subproject PARENT_DIRECTORY)
 
 # Only build the test suite and utilities if this is not a subproject
 if(NOT imframe_is_subproject)
-	add_executable(Feature WIN32 "Tests/Feature/Feature.cpp")
+	set(
+		features_list
+		"Tests/Features/Main.cpp"
+		"Tests/Features/MainApp.cpp"
+		"Tests/Features/MainApp.h"
+	)
+	add_executable(Feature WIN32 ${features_list})
 	set_property(TARGET Feature PROPERTY WIN32_EXECUTABLE TRUE)
 	target_link_libraries(Feature ImFrame)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Feature)
+	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/Source")
+	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
+	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/External/Implot")
+	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Tests/Features" PREFIX "Source" FILES ${features_list})
 endif()
 
-# Create folder structure
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
 
 

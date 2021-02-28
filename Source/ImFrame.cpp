@@ -28,12 +28,15 @@ namespace ImFrame
 {
 	namespace
 	{
+
+		// Persistent app data
 		int windowWidth = 800;
 		int windowHeight = 600;
 		int windowPosX = 100;
 		int windowPosY = 100;
 		bool windowMaximized = false;
 		mINI::INIStructure ini;
+		ImAppPtr appPtr;
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
 		{
@@ -69,10 +72,10 @@ namespace ImFrame
 			windowMaximized = maximized ? true : false;
 		}
 
-		void GetConfig()
+		void GetConfig(const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
-			fs::path configFolder = GetConfigFolder("ImFrame", "Feature");
+			fs::path configFolder = GetConfigFolder(orgName, appName);
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
 			file.read(ini);
@@ -93,10 +96,10 @@ namespace ImFrame
 				windowMaximized = std::stoi(wm) == 0 ? false : true;
 		}
 
-		void SaveConfig()
+		void SaveConfig(const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
-			fs::path configFolder = GetConfigFolder("ImFrame", "Feature");
+			fs::path configFolder = GetConfigFolder(orgName, appName);
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
 			ini["window"]["width"] = std::to_string(windowWidth);
@@ -109,9 +112,11 @@ namespace ImFrame
 
 	}
 
-    void RunImFrame()
+    void RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
-		GetConfig();
+		namespace fs = std::filesystem;
+
+		GetConfig(orgName, appName);
 
 		glfwSetErrorCallback(ErrorCallback);
 
@@ -122,7 +127,7 @@ namespace ImFrame
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		GLFWwindow * window = glfwCreateWindow(windowWidth, windowHeight, "ImFrame Test", NULL, NULL);
+		GLFWwindow * window = glfwCreateWindow(windowWidth, windowHeight, appName.c_str(), NULL, NULL);
 		if (!window)
 		{
 			glfwTerminate();
@@ -138,15 +143,40 @@ namespace ImFrame
 		if (windowMaximized)
 			glfwMaximizeWindow(window);
 
-
 		glfwMakeContextCurrent(window);
 		gladLoadGL();
 		glfwSwapInterval(1);
 
+		ImGui::CreateContext();
+		ImPlot::CreateContext();
+		ImGuiIO & io = ImGui::GetIO();
+		fs::path iniPath = GetConfigFolder(orgName, appName);
+		iniPath.append("imgui.ini");
+		auto iniStr = iniPath.string();
+		io.IniFilename = iniStr.c_str();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init();
+		ImGui_ImplOpenGL3_CreateFontsTexture();
+
+		// Create user-defined app
+		appPtr = createAppFn();
+
 		InitDemo();
 
+		// Main application loop
 		while (!glfwWindowShouldClose(window))
 		{
+
+			glfwPollEvents();
+
+			// Start the Dear ImGui frame
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+
+			appPtr->OnUpdate();
+
+			ImGui::Render();
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 
@@ -154,12 +184,20 @@ namespace ImFrame
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			UpdateDemo(window);
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			glfwSwapBuffers(window);
-			glfwPollEvents();
 		}
 
-		SaveConfig();
+		appPtr = nullptr;
+
+		SaveConfig(orgName, appName);
+
+		ImGui_ImplOpenGL3_DestroyFontsTexture();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui_ImplOpenGL3_Shutdown();
+		ImPlot::DestroyContext();
+		ImGui::DestroyContext();
 
 		glfwDestroyWindow(window);
 		glfwTerminate();

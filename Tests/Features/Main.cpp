@@ -22,40 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <linmath.h>
-#include <mini/ini.h>
+#include <ImFrame.h>
+#include "MainApp.h"
 
-#if defined(IMFRAME_MACOS)
-#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#elif defined(IMFRAME_LINUX)
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glx.h>
-#elif defined(IMFRAME_WINDOWS)
-#include <gl/GL.h>
+#ifdef IMFRAME_WINDOWS
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #endif
 
-#include <string>
-#include <filesystem>
-#include <cassert>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#include "ImGui/imgui_impl_glfw.h"
-#include "ImGui/imgui_impl_opengl3.h"
-
-#include "ImFrame.h"
-#include "ImfUtilities.h"
-#include "ImfGLDemo.h"
-
-namespace ImFrame
+#ifdef IMFRAME_WINDOWS
+int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#else
+int main(int argc, char ** argv)
+#endif
 {
-	std::string GetOsConfigFolder();
+
+	ImFrame::RunImFrame("ImFrame", "Features", [] () { return std::make_unique<Feature::MainApp>(); });
+
+    return 0;
 }
+

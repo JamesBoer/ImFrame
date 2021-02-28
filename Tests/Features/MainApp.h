@@ -22,24 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#pragma once
 
-#include "../../Source/ImFrame.h"
+#include <ImFrame.h>
 
-using namespace ImFrame;
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <SDKDDKVer.h>
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-//int APIENTRY _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
-int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
-#else
-int main(int argc, char ** argv)
-#endif
+namespace Feature
 {
+	class MainApp : public ImFrame::ImApp
+	{
+	public:
 
-	RunImFrame();
-
-    return 0;
+		void OnUpdate() override;
+	};
 }
-
