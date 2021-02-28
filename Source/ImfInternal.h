@@ -29,18 +29,6 @@ THE SOFTWARE.
 #include <linmath.h>
 #include <mini/ini.h>
 
-#if defined(IMFRAME_MACOS)
-#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
-#elif defined(IMFRAME_LINUX)
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glx.h>
-#elif defined(IMFRAME_WINDOWS)
-#include <gl/GL.h>
-#endif
-
 #include <string>
 #include <filesystem>
 #include <cassert>
