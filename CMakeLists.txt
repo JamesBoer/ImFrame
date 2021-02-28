@@ -19,6 +19,8 @@ if(MSVC)
 	add_definitions(-D_UNICODE)
 endif()
 
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
+
 # Set some specific glfw options
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
