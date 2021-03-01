@@ -34,7 +34,7 @@ THE SOFTWARE.
 #ifdef IMFRAME_WINDOWS
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 #else
-int main(int argc, char ** argv)
+int main(int, char **)
 #endif
 {
 	return ImFrame::RunImFrame("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });

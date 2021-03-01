@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set project name
 project(Minimal)
 
-# Add source files and dependencies to library
+# Add source files and dependencies to executable
 set(
 	source_list
 	"Internal.h"
