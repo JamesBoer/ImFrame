@@ -19,6 +19,7 @@ if(MSVC)
 	add_definitions(-D_UNICODE)
 endif()
 
+# Ensure ImGui integration file uses glad loader
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 # Set some specific glfw options
@@ -99,21 +100,8 @@ get_directory_property(imframe_is_subproject PARENT_DIRECTORY)
 
 # Only build the test suite and utilities if this is not a subproject
 if(NOT imframe_is_subproject)
-	set(
-		features_list
-		"Tests/Features/FeaturesInternal.h"
-		"Tests/Features/GLDemo.cpp"
-		"Tests/Features/GLDemo.h"
-		"Tests/Features/Main.cpp"
-		"Tests/Features/MainApp.cpp"
-		"Tests/Features/MainApp.h"
-	)
-	add_executable(Features WIN32 ${features_list})
-	set_property(TARGET Features PROPERTY WIN32_EXECUTABLE TRUE)
-	target_link_libraries(Features ImFrame)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Features)
-	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Tests/Features" PREFIX "Source" FILES ${features_list})
+	add_subdirectory("Examples/Features")
+	add_subdirectory("Examples/Minimal")
+	set_property(TARGET Features PROPERTY FOLDER "Examples")
+	set_property(TARGET Minimal PROPERTY FOLDER "Examples")
 endif()
-
-
-

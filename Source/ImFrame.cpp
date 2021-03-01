@@ -118,7 +118,7 @@ namespace ImFrame
 		return buffer;
 	}
 
-    void RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
+    int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
 
@@ -128,7 +128,7 @@ namespace ImFrame
 		// Init GLFW and create window, setup callbacks, etc
 		glfwSetErrorCallback(ErrorCallback);
 		if (!glfwInit())
-			exit(EXIT_FAILURE);
+			return 1;
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -136,7 +136,7 @@ namespace ImFrame
 		if (!window)
 		{
 			glfwTerminate();
-			exit(EXIT_FAILURE);
+			return 1;
 		}
 		glfwSetWindowPosCallback(window, WindowPosCallback);
 		glfwSetWindowSizeCallback(window, WindowSizeCallback);
@@ -214,6 +214,8 @@ namespace ImFrame
 		// Shut down glfw
 		glfwDestroyWindow(window);
 		glfwTerminate();
+
+		return 0;
     }
 
 }

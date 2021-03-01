@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 
-#include "FeaturesInternal.h"
+#include "Internal.h"
 
 #ifdef IMFRAME_WINDOWS
 #include <SDKDDKVer.h>
@@ -32,14 +32,12 @@ THE SOFTWARE.
 #endif
 
 #ifdef IMFRAME_WINDOWS
-int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 #else
 int main(int argc, char ** argv)
 #endif
 {
-
-	ImFrame::RunImFrame("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
-
-    return 0;
+	return ImFrame::RunImFrame("ImFrame", "Minimal", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
 }
+
 
