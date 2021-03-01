@@ -25,6 +25,9 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        token: ${{ secrets.REPO_ACCESS }}
 
     # Ensure MSVC tools are available
     - name: Add msbuild to PATH
@@ -46,7 +49,10 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-  
+      with:
+        submodules: recursive
+        token: ${{ secrets.REPO_ACCESS }}
+ 
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh
@@ -63,7 +69,14 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-  
+      with:
+        submodules: recursive
+        token: ${{ secrets.REPO_ACCESS }}
+
+    # Run Linux dev library installation script
+    - name: Install Linux dev libs
+      run: ./InstallLinuxLibs.sh
+      
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh
