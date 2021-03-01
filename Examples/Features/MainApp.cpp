@@ -29,7 +29,7 @@ using namespace Features;
 MainApp::MainApp(GLFWwindow * window) :
 	ImFrame::ImApp(window)
 {
-	InitDemo();
+	InitGlDemo();
 }
 
 void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
@@ -40,11 +40,22 @@ void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[m
 
 void MainApp::OnUpdate()
 {
-	UpdateDemo(GetWindow());
-	static bool showImGuiDemo = true;
-	if (showImGuiDemo)
-		ImGui::ShowDemoWindow(&showImGuiDemo);
-	static bool showImPlotDemo = true;
-	if (showImPlotDemo)
-		ImPlot::ShowDemoWindow(&showImPlotDemo);
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
+			ImGui::MenuItem("Show ImGui Demo", nullptr, &m_showImGuiDemo);
+			ImGui::MenuItem("Show ImPlot Demo", nullptr, &m_showImPlotDemo);
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
+	if (m_showGlDemo)
+		ShowGlDemo(GetWindow());
+	if (m_showImGuiDemo)
+		ImGui::ShowDemoWindow(&m_showImGuiDemo);
+	if (m_showImPlotDemo)
+		ImPlot::ShowDemoWindow(&m_showImPlotDemo);
 }

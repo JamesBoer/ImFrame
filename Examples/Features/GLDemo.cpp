@@ -75,7 +75,7 @@ namespace Features
 		GLuint vertex_array;
 	}
 
-	void InitDemo()
+	void InitGlDemo()
 	{
 		// NOTE: OpenGL error checks have been omitted for brevity
 
@@ -112,7 +112,7 @@ namespace Features
 
 	}
 
-	void UpdateDemo(GLFWwindow * window)
+	void ShowGlDemo(GLFWwindow * window)
 	{
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
