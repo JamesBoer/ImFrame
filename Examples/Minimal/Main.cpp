@@ -22,29 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "FeaturesInternal.h"
 
-using namespace Features;
+#include "Internal.h"
 
-MainApp::MainApp(GLFWwindow * window) :
-	ImFrame::ImApp(window)
+#ifdef IMFRAME_WINDOWS
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
+#ifdef IMFRAME_WINDOWS
+int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
+#else
+int main(int, char **)
+#endif
 {
-	InitDemo();
+	return ImFrame::RunImFrame("ImFrame", "Minimal", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
 }
 
-void MainApp::OnKeyEvent(int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(GetWindow(), GLFW_TRUE);
-}
 
-void MainApp::OnUpdate()
-{
-	UpdateDemo(GetWindow());
-	static bool showImGuiDemo = true;
-	if (showImGuiDemo)
-		ImGui::ShowDemoWindow(&showImGuiDemo);
-	static bool showImPlotDemo = true;
-	if (showImPlotDemo)
-		ImPlot::ShowDemoWindow(&showImPlotDemo);
-}
