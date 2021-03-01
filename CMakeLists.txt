@@ -40,11 +40,9 @@ set_property(TARGET Implot PROPERTY FOLDER "External")
 # Add source files and dependencies to library
 set(
 	source_list
-	"Source/ImfGLDemo.cpp"
-	"Source/ImfGLDemo.h"
+	"Include/ImFrame.h"
 	"Source/ImfInternal.h"
 	"Source/ImFrame.cpp"
-	"Source/ImFrame.h"
 	"Source/ImfUtilities.cpp"
 	"Source/ImfUtilities.h"
 	"Source/ImGui/imgui_impl_glfw.cpp"
@@ -84,13 +82,14 @@ else()
 endif()
 
 # Indicate various header includes for projects
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/glfw/include")
-target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Implot")
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/linmath")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/Include")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/glad/include")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/glfw/include")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Imgui")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Implot")
+target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/linmath")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
+target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
 
 # Create folder structure
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
@@ -102,17 +101,17 @@ get_directory_property(imframe_is_subproject PARENT_DIRECTORY)
 if(NOT imframe_is_subproject)
 	set(
 		features_list
+		"Tests/Features/FeaturesInternal.h"
+		"Tests/Features/GLDemo.cpp"
+		"Tests/Features/GLDemo.h"
 		"Tests/Features/Main.cpp"
 		"Tests/Features/MainApp.cpp"
 		"Tests/Features/MainApp.h"
 	)
-	add_executable(Feature WIN32 ${features_list})
-	set_property(TARGET Feature PROPERTY WIN32_EXECUTABLE TRUE)
-	target_link_libraries(Feature ImFrame)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Feature)
-	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/Source")
-	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
-	target_include_directories(Feature PRIVATE "${PROJECT_SOURCE_DIR}/External/Implot")
+	add_executable(Features WIN32 ${features_list})
+	set_property(TARGET Features PROPERTY WIN32_EXECUTABLE TRUE)
+	target_link_libraries(Features ImFrame)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Features)
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Tests/Features" PREFIX "Source" FILES ${features_list})
 endif()
 

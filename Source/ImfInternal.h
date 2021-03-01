@@ -24,9 +24,6 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <linmath.h>
 #include <mini/ini.h>
 
 #include <string>
@@ -41,7 +38,6 @@ THE SOFTWARE.
 
 #include "ImFrame.h"
 #include "ImfUtilities.h"
-#include "ImfGLDemo.h"
 
 namespace ImFrame
 {

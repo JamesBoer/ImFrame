@@ -25,7 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 
-namespace ImFrame
+namespace Features
 {
 
 	void InitDemo();

@@ -22,12 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "MainApp.h"
+#include "FeaturesInternal.h"
 
-using namespace Feature;
+using namespace Features;
+
+MainApp::MainApp(GLFWwindow * window) :
+	ImFrame::ImApp(window)
+{
+	InitDemo();
+}
+
+void MainApp::OnKeyEvent(int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(GetWindow(), GLFW_TRUE);
+}
 
 void MainApp::OnUpdate()
 {
+	UpdateDemo(GetWindow());
 	static bool showImGuiDemo = true;
 	if (showImGuiDemo)
 		ImGui::ShowDemoWindow(&showImGuiDemo);
