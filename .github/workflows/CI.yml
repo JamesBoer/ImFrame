@@ -72,7 +72,11 @@ jobs:
       with:
         submodules: recursive
         token: ${{ secrets.REPO_ACCESS }}
-  
+
+    # Run Linux dev library installation script
+    - name: Install Linux dev libs
+      run: ./InstallLinuxLibs.sh
+      
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh
