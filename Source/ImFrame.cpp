@@ -43,13 +43,12 @@ namespace ImFrame
 			fprintf(stderr, "Error: %s\n", description);
 		}
 
-		void KeyCallback(GLFWwindow * window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
+		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
-			if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
+			appPtr->OnKeyEvent(key, scancode, action, mods);
 		}
 
-		void WindowPosCallback([[maybe_unused]] GLFWwindow * window, int x, int y)
+		void WindowPosCallback(GLFWwindow * window, int x, int y)
 		{		
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
@@ -58,7 +57,7 @@ namespace ImFrame
 			}
 		}
 
-		void WindowSizeCallback([[maybe_unused]]GLFWwindow * window, int width, int height)
+		void WindowSizeCallback(GLFWwindow * window, int width, int height)
 		{
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
@@ -112,43 +111,48 @@ namespace ImFrame
 
 	}
 
+	std::string GetVersionString()
+	{
+		char buffer[32];
+		snprintf(buffer, std::size(buffer), "%i.%i.%i", ImFrame::MajorVersion, ImFrame::MinorVersion, ImFrame::PatchNumber);
+		return buffer;
+	}
+
     void RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
 
+		// Read existing config data
 		GetConfig(orgName, appName);
 
+		// Init GLFW and create window, setup callbacks, etc
 		glfwSetErrorCallback(ErrorCallback);
-
 		if (!glfwInit())
 			exit(EXIT_FAILURE);
-
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 		GLFWwindow * window = glfwCreateWindow(windowWidth, windowHeight, appName.c_str(), NULL, NULL);
 		if (!window)
 		{
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
-
 		glfwSetWindowPosCallback(window, WindowPosCallback);
 		glfwSetWindowSizeCallback(window, WindowSizeCallback);
 		glfwSetWindowMaximizeCallback(window, WindowMaximizeCallback);
 		glfwSetKeyCallback(window, KeyCallback);
-
 		glfwSetWindowPos(window, windowPosX, windowPosY);
 		if (windowMaximized)
 			glfwMaximizeWindow(window);
-
 		glfwMakeContextCurrent(window);
-		gladLoadGL();
 		glfwSwapInterval(1);
 
+		// Initialize glad GL functions
+		gladLoadGL();
+
+		// Initialize ImGui
 		ImGui::CreateContext();
-		ImPlot::CreateContext();
 		ImGuiIO & io = ImGui::GetIO();
 		fs::path iniPath = GetConfigFolder(orgName, appName);
 		iniPath.append("imgui.ini");
@@ -158,15 +162,16 @@ namespace ImFrame
 		ImGui_ImplOpenGL3_Init();
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 
-		// Create user-defined app
-		appPtr = createAppFn();
+		// Initialize ImPlot
+		ImPlot::CreateContext();
 
-		InitDemo();
+		// Create user-defined app
+		appPtr = createAppFn(window);
 
 		// Main application loop
 		while (!glfwWindowShouldClose(window))
 		{
-
+			// Perform event and input polling
 			glfwPollEvents();
 
 			// Start the Dear ImGui frame
@@ -174,31 +179,39 @@ namespace ImFrame
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			appPtr->OnUpdate();
-
-			ImGui::Render();
+			// Clear render buffer
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
-
 			glViewport(0, 0, width, height);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			UpdateDemo(window);
+			// Perform app-specific updates
+			appPtr->OnUpdate();
+
+			// Render ImGui to draw data
+			ImGui::Render();
+
+			// Render ImGui
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+			// Present buffer
 			glfwSwapBuffers(window);
 		}
 
+		// Delete application
 		appPtr = nullptr;
 
+		// Save config data to disk
 		SaveConfig(orgName, appName);
 
+		// Shut down ImGui and ImPlot
 		ImGui_ImplOpenGL3_DestroyFontsTexture();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
 
+		// Shut down glfw
 		glfwDestroyWindow(window);
 		glfwTerminate();
     }

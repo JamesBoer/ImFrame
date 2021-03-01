@@ -23,8 +23,7 @@ THE SOFTWARE.
 */
 
 
-#include <ImFrame.h>
-#include "MainApp.h"
+#include "FeaturesInternal.h"
 
 #ifdef IMFRAME_WINDOWS
 #include <SDKDDKVer.h>
@@ -39,7 +38,7 @@ int main(int argc, char ** argv)
 #endif
 {
 
-	ImFrame::RunImFrame("ImFrame", "Features", [] () { return std::make_unique<Feature::MainApp>(); });
+	ImFrame::RunImFrame("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
 
     return 0;
 }

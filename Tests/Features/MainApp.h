@@ -24,14 +24,13 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <ImFrame.h>
-
-namespace Feature
+namespace Features
 {
 	class MainApp : public ImFrame::ImApp
 	{
 	public:
-
+		MainApp(GLFWwindow * window);
 		void OnUpdate() override;
+		void OnKeyEvent(int key, int scancode, int action, int mods) override;
 	};
 }
