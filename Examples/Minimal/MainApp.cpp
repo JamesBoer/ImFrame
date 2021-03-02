@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #include "Internal.h"
 
-using namespace Features;
+using namespace Minimal;
 
 MainApp::MainApp(GLFWwindow * window) :
 	ImFrame::ImApp(window)

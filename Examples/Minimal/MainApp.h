@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #pragma once
 
-namespace Features
+namespace Minimal
 {
 	class MainApp : public ImFrame::ImApp
 	{

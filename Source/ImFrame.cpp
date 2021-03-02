@@ -45,7 +45,8 @@ namespace ImFrame
 
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
-			appPtr->OnKeyEvent(key, scancode, action, mods);
+			if (appPtr)
+				appPtr->OnKeyEvent(key, scancode, action, mods);
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)
@@ -55,6 +56,8 @@ namespace ImFrame
 				windowPosX = x;
 				windowPosY = y;
 			}
+			if (appPtr)
+				appPtr->OnWindowPositionChange(x, y);
 		}
 
 		void WindowSizeCallback(GLFWwindow * window, int width, int height)
@@ -64,11 +67,27 @@ namespace ImFrame
 				windowWidth = width;
 				windowHeight = height;
 			}
+			if (appPtr)
+				appPtr->OnWindowSizeChange(width, height);
 		}
 
 		void WindowMaximizeCallback([[maybe_unused]] GLFWwindow * window, int maximized)
 		{
 			windowMaximized = maximized ? true : false;
+			if (appPtr)
+				appPtr->OnWindowMaximize(windowMaximized);
+		}
+
+		void WindowMouseButtonCallback([[maybe_unused]] GLFWwindow * window, int button, int action, int mods)
+		{
+			if (appPtr)
+				appPtr->OnMouseButtonEvent(button, action, mods);
+		}
+
+		void WindowCursorPositionCallback([[maybe_unused]] GLFWwindow * window, double x, double y)
+		{
+			if (appPtr)
+				appPtr->OnCursorPosition(x, y);
 		}
 
 		void GetConfig(const std::string & orgName, const std::string & appName)
@@ -125,7 +144,7 @@ namespace ImFrame
 		// Read existing config data
 		GetConfig(orgName, appName);
 
-		// Init GLFW and create window, setup callbacks, etc
+		// Init GLFW and create window
 		glfwSetErrorCallback(ErrorCallback);
 		if (!glfwInit())
 			return 1;
@@ -138,10 +157,14 @@ namespace ImFrame
 			glfwTerminate();
 			return 1;
 		}
+
+		// Set up window callbacks
 		glfwSetWindowPosCallback(window, WindowPosCallback);
 		glfwSetWindowSizeCallback(window, WindowSizeCallback);
 		glfwSetWindowMaximizeCallback(window, WindowMaximizeCallback);
 		glfwSetKeyCallback(window, KeyCallback);
+		glfwSetMouseButtonCallback(window, WindowMouseButtonCallback);
+		glfwSetCursorPosCallback(window, WindowCursorPositionCallback);
 		glfwSetWindowPos(window, windowPosX, windowPosY);
 		if (windowMaximized)
 			glfwMaximizeWindow(window);
