@@ -131,12 +131,9 @@ namespace ImFrame
 		{
 #ifdef IMFRAME_WINDOWS
 
-#ifdef _DEBUG
 			// Assert that the function returns zero indicating no memory leaks from
 			// the debug CRT libraries.
-			//assert(!_CrtDumpMemoryLeaks() && "Memory leak detected!");
-			_CrtDumpMemoryLeaks();
-#endif
+			assert(!_CrtDumpMemoryLeaks() && "Memory leak detected!");
 #endif
 		}
 
@@ -149,20 +146,26 @@ namespace ImFrame
 		return buffer;
 	}
 
-	std::optional<std::string> OpenFileDialog([[maybe_unused]] const std::string & filters, [[maybe_unused]] const std::string & defaultPath)
+	std::optional<std::filesystem::path> OpenFileDialog([[maybe_unused]] const std::string & filters, [[maybe_unused]] const std::string & defaultPath)
 	{
-		char const * lFilterPatterns[2] = { "*.png", "*.jpg" };
-		auto path = tinyfd_openFileDialog(
-			"Open Image",
-			"",
-			2,
-			lFilterPatterns,
-			NULL,
-			1);
-		if (!path)
-			return std::optional<std::string>();
-		std::string s = path;
-		return s;
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+		if (result == NFD_OKAY)
+		{
+			std::string outStr = outPath;
+			free(outPath);
+			return outStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//printf("Error: %s\n", NFD_GetError());
+			return std::optional<std::filesystem::path>();
+		}
 	}
 
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)

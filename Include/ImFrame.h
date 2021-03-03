@@ -63,6 +63,7 @@ THE SOFTWARE.
 #include <string>
 #include <functional>
 #include <optional>
+#include <filesystem>
 
 namespace ImFrame
 {
@@ -110,7 +111,7 @@ namespace ImFrame
 
 
 	// Native file and folder dialog functions
-	std::optional<std::string> OpenFileDialog(const std::string & filters, const std::string & defaultPath);
+	std::optional<std::filesystem::path> OpenFileDialog(const std::string & filters, const std::string & defaultPath);
 
 
 

@@ -31,14 +31,14 @@ add_subdirectory("External/glad")
 add_subdirectory("External/glfw")
 add_subdirectory("External/Imgui")
 add_subdirectory("External/Implot")
-add_subdirectory("External/tinyfiledialogs")
+add_subdirectory("External/nativefiledialog")
 
 # Indicate that we should place these in the External project folder
 set_property(TARGET glad PROPERTY FOLDER "External")
 set_property(TARGET glfw PROPERTY FOLDER "External")
 set_property(TARGET Imgui PROPERTY FOLDER "External")
 set_property(TARGET Implot PROPERTY FOLDER "External")
-set_property(TARGET tinyfiledialogs PROPERTY FOLDER "External")
+set_property(TARGET nativefiledialog PROPERTY FOLDER "External")
 
 # Add source files and dependencies to library
 set(
@@ -75,7 +75,7 @@ if(UNIX AND NOT APPLE)
 	)
 endif()
 add_library(ImFrame ${source_list})
-target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot tinyfiledialogs)
+target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nativefiledialog)
 
 # Set compiler options
 if(MSVC)
@@ -91,7 +91,8 @@ target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/glfw/i
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Imgui")
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Implot")
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/linmath")
-target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/tinyfiledialogs")
+target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
+target_include_directories(nativefiledialog PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
 

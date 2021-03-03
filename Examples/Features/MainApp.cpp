@@ -50,7 +50,7 @@ void MainApp::OnUpdate()
 				m_fileOpen = false;
 				if (path)
 				{
-					printf("%s", path.value().c_str());
+					//printf("%s", path.value().c_str());
 				}
 			}
 			ImGui::EndMenu();

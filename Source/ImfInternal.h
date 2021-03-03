@@ -30,12 +30,9 @@ THE SOFTWARE.
 #include <string>
 #include <filesystem>
 #include <cassert>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
 
 #include <mini/ini.h>
-#include <tinyfiledialogs.h>
+#include <nfd.h>
 
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
