@@ -128,6 +128,19 @@ namespace ImFrame
 			file.write(ini, true);
 		}
 
+		void OnExit()
+		{
+#ifdef IMFRAME_WINDOWS
+
+#ifdef _DEBUG
+			// Assert that the function returns zero indicating no memory leaks from
+			// the debug CRT libraries.
+			//assert(!_CrtDumpMemoryLeaks() && "Memory leak detected!");
+			_CrtDumpMemoryLeaks();
+#endif
+#endif
+		}
+
 	}
 
 	std::string GetVersionString()
@@ -137,9 +150,34 @@ namespace ImFrame
 		return buffer;
 	}
 
+	std::optional<std::string> OpenFileDialog([[maybe_unused]] const std::string & filters, [[maybe_unused]] const std::string & defaultPath)
+	{
+		char const * lFilterPatterns[2] = { "*.png", "*.jpg" };
+		auto path = tinyfd_openFileDialog(
+			"Open Image",
+			"",
+			2,
+			lFilterPatterns,
+			NULL,
+			1);
+		if (!path)
+			return std::optional<std::string>();
+		std::string s = path;
+		return s;
+	}
+
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
+
+		// Signal this function to execute on exit
+		atexit(OnExit);
+
+#ifdef IMFRAME_WINDOWS
+		// Enable memory leak checking
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+#endif
 
 		// Read existing config data
 		GetConfig(orgName, appName);

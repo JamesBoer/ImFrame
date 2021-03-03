@@ -24,7 +24,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <mini/ini.h>
+#include "ImFrame.h"
+#include "ImfUtilities.h"
 
 #include <string>
 #include <filesystem>
@@ -33,11 +34,12 @@ THE SOFTWARE.
 #include <stddef.h>
 #include <stdio.h>
 
+#include <mini/ini.h>
+#include <tinyfiledialogs.h>
+
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 
-#include "ImFrame.h"
-#include "ImfUtilities.h"
 
 namespace ImFrame
 {

@@ -24,18 +24,6 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#undef APIENTRY
-
-#include <linmath.h>
-#include <imgui.h>
-#include <implot.h>
-
-#include <memory>
-#include <string>
-#include <functional>
-
 // Platform definitions
 #if defined(_WIN32) || defined(_WIN64)
 #define IMFRAME_WINDOWS
@@ -48,6 +36,33 @@ THE SOFTWARE.
 #if defined(__APPLE__) && defined(__MACH__)
 #define IMFRAME_MACOS
 #endif
+
+// Enable memory leak detection in Windows debug builds
+// Don't change the order of these includes!
+#ifdef IMFRAME_WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#endif
+
+// Stdlib.h must come before crtdebug.h
+#include <stdlib.h>
+
+// Use the debug heap with leak reporting in Windows debug builds
+#ifdef IMFRAME_WINDOWS
+#include <crtdbg.h>
+#endif
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#undef APIENTRY
+
+#include <linmath.h>
+#include <imgui.h>
+#include <implot.h>
+
+#include <memory>
+#include <string>
+#include <functional>
+#include <optional>
 
 namespace ImFrame
 {
@@ -94,6 +109,12 @@ namespace ImFrame
 	using ImAppPtr = std::unique_ptr<ImApp>;
 
 
+	// Native file and folder dialog functions
+	std::optional<std::string> OpenFileDialog(const std::string & filters, const std::string & defaultPath);
+
+
+
+	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
 
 	// Call from main() to run ImFrame framework

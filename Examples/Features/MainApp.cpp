@@ -42,6 +42,19 @@ void MainApp::OnUpdate()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open...", nullptr, &m_fileOpen))
+			{
+				auto path = ImFrame::OpenFileDialog("", "");
+				m_fileOpen = false;
+				if (path)
+				{
+					printf("%s", path.value().c_str());
+				}
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("View"))
 		{
 			ImGui::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
