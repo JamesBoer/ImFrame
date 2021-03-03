@@ -32,7 +32,7 @@ if(APPLE)
 	list(
 		APPEND
 		source_list
-		"nfd_cocoa.m"
+		"src/nfd_cocoa.m"
 	)
 endif()
 if(UNIX AND NOT APPLE)
