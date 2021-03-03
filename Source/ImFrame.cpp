@@ -35,7 +35,6 @@ namespace ImFrame
 		int windowPosX = 100;
 		int windowPosY = 100;
 		bool windowMaximized = false;
-		mINI::INIStructure ini;
 		ImAppPtr appPtr;
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
@@ -90,7 +89,7 @@ namespace ImFrame
 				appPtr->OnCursorPosition(x, y);
 		}
 
-		void GetConfig(const std::string & orgName, const std::string & appName)
+		void GetConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
@@ -114,7 +113,7 @@ namespace ImFrame
 				windowMaximized = std::stoi(wm) == 0 ? false : true;
 		}
 
-		void SaveConfig(const std::string & orgName, const std::string & appName)
+		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
@@ -180,7 +179,8 @@ namespace ImFrame
 #endif
 
 		// Read existing config data
-		GetConfig(orgName, appName);
+		mINI::INIStructure ini;
+		GetConfig(ini, orgName, appName);
 
 		// Init GLFW and create window
 		glfwSetErrorCallback(ErrorCallback);
@@ -276,7 +276,7 @@ namespace ImFrame
 		appPtr = nullptr;
 
 		// Save config data to disk
-		SaveConfig(orgName, appName);
+		SaveConfig(ini, orgName, appName);
 
 		// Shut down ImGui and ImPlot
 		ImGui_ImplOpenGL3_DestroyFontsTexture();
