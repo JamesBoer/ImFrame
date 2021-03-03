@@ -98,7 +98,7 @@ namespace mINI
 {
 	namespace INIStringUtil
 	{
-		const std::string whitespaceDelimiters = " \t\n\r\f\v";
+		inline const char * whitespaceDelimiters = " \t\n\r\f\v";
 		inline void trim(std::string& str)
 		{
 			str.erase(str.find_last_not_of(whitespaceDelimiters) + 1);
@@ -125,9 +125,9 @@ namespace mINI
 			}
 		}
 #ifdef _WIN32
-		const std::string endl = "\r\n";
+		static const char * endl = "\r\n";
 #else
-		const std::string endl = "\n";
+		static const char * endl = "\n";
 #endif
 	}
 
