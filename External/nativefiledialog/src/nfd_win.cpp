@@ -238,8 +238,9 @@ static nfdresult_t AddFiltersToDialog( ::IFileDialog *fileOpenDialog, const char
     /* free speclist */
     for ( size_t i = 0; i < filterCount; ++i )
     {
-        NFDi_Free( (void*)specList[i].pszSpec );
-    }
+        NFDi_Free( (void*)specList[i].pszName);
+		NFDi_Free((void *)specList[i].pszSpec);
+	}
     NFDi_Free( specList );    
 
     return NFD_OKAY;
