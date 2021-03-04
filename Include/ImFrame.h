@@ -63,6 +63,7 @@ THE SOFTWARE.
 #include <string>
 #include <functional>
 #include <optional>
+#include <vector>
 #include <filesystem>
 
 namespace ImFrame
