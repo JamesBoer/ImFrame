@@ -28,7 +28,7 @@ THE SOFTWARE.
 namespace Features
 {
 
-	void InitDemo();
-	void UpdateDemo(GLFWwindow * window);
+	void InitGlDemo();
+	void ShowGlDemo(GLFWwindow * window);
 
 }

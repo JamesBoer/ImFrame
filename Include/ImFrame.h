@@ -24,18 +24,6 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#undef APIENTRY
-
-#include <linmath.h>
-#include <imgui.h>
-#include <implot.h>
-
-#include <memory>
-#include <string>
-#include <functional>
-
 // Platform definitions
 #if defined(_WIN32) || defined(_WIN64)
 #define IMFRAME_WINDOWS
@@ -48,6 +36,35 @@ THE SOFTWARE.
 #if defined(__APPLE__) && defined(__MACH__)
 #define IMFRAME_MACOS
 #endif
+
+// Enable memory leak detection in Windows debug builds
+// Don't change the order of these includes!
+#ifdef IMFRAME_WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#endif
+
+// Stdlib.h must come before crtdebug.h
+#include <stdlib.h>
+
+// Use the debug heap with leak reporting in Windows debug builds
+#ifdef IMFRAME_WINDOWS
+#include <crtdbg.h>
+#endif
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#undef APIENTRY
+
+#include <linmath.h>
+#include <imgui.h>
+#include <implot.h>
+
+#include <memory>
+#include <string>
+#include <functional>
+#include <optional>
+#include <vector>
+#include <filesystem>
 
 namespace ImFrame
 {
@@ -69,10 +86,20 @@ namespace ImFrame
 	public:
 		ImApp(GLFWwindow * window) :
 			m_window(window)
-		{ }
+		{}
 		virtual ~ImApp() {}
 
+		// Input events
 		virtual void OnKeyEvent([[maybe_unused]] int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action, [[maybe_unused]] int mods) {}
+		virtual void OnMouseButtonEvent([[maybe_unused]] int button, [[maybe_unused]] int action, [[maybe_unused]] int mods) {}
+		virtual void OnCursorPosition([[maybe_unused]] double x, [[maybe_unused]] double y) {}
+
+		// Window messages
+		virtual void OnWindowPositionChange([[maybe_unused]] int x, [[maybe_unused]] int y) {}
+		virtual void OnWindowSizeChange([[maybe_unused]] int width, [[maybe_unused]] int height) {}
+		virtual void OnWindowMaximize([[maybe_unused]] bool maximized) {}
+
+		// Update tick
 		virtual void OnUpdate() {}
 
 		GLFWwindow * GetWindow() const { return m_window; }
@@ -84,6 +111,15 @@ namespace ImFrame
 	using ImAppPtr = std::unique_ptr<ImApp>;
 
 
+	// Native file and folder dialog functions
+	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath);
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath);
+	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath);
+	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
+
+
+
+	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
 
 	// Call from main() to run ImFrame framework

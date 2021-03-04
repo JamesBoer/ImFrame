@@ -16,13 +16,14 @@ project (Imgui LANGUAGES CXX)
 # Set the source files to a list
 set(
     source_list
+	"imconfig.h"
     "imgui.cpp"
 	"imgui.h"
 	"imgui_demo.cpp"
 	"imgui_draw.cpp"
-	"imgui_widgets.cpp"
 	"imgui_internal.h"
-	"imconfig.h"
+    "imgui_tables.cpp"
+	"imgui_widgets.cpp"
 	"imstb_rectpack.h"
 	"imstb_textedit.h"
 	"imstb_truetype.h"

@@ -35,7 +35,6 @@ namespace ImFrame
 		int windowPosX = 100;
 		int windowPosY = 100;
 		bool windowMaximized = false;
-		mINI::INIStructure ini;
 		ImAppPtr appPtr;
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
@@ -45,7 +44,8 @@ namespace ImFrame
 
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
-			appPtr->OnKeyEvent(key, scancode, action, mods);
+			if (appPtr)
+				appPtr->OnKeyEvent(key, scancode, action, mods);
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)
@@ -55,6 +55,8 @@ namespace ImFrame
 				windowPosX = x;
 				windowPosY = y;
 			}
+			if (appPtr)
+				appPtr->OnWindowPositionChange(x, y);
 		}
 
 		void WindowSizeCallback(GLFWwindow * window, int width, int height)
@@ -64,38 +66,60 @@ namespace ImFrame
 				windowWidth = width;
 				windowHeight = height;
 			}
+			if (appPtr)
+				appPtr->OnWindowSizeChange(width, height);
 		}
 
 		void WindowMaximizeCallback([[maybe_unused]] GLFWwindow * window, int maximized)
 		{
 			windowMaximized = maximized ? true : false;
+			if (appPtr)
+				appPtr->OnWindowMaximize(windowMaximized);
 		}
 
-		void GetConfig(const std::string & orgName, const std::string & appName)
+		void WindowMouseButtonCallback([[maybe_unused]] GLFWwindow * window, int button, int action, int mods)
+		{
+			if (appPtr)
+				appPtr->OnMouseButtonEvent(button, action, mods);
+		}
+
+		void WindowCursorPositionCallback([[maybe_unused]] GLFWwindow * window, double x, double y)
+		{
+			if (appPtr)
+				appPtr->OnCursorPosition(x, y);
+		}
+
+		int GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, int defaultValue)
+		{
+			auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stoi(s);
+		}
+
+		bool GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, bool defaultValue)
+		{
+			auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stoi(s) == 0 ? false : true;
+		}
+
+		void GetConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
 			file.read(ini);
-			std::string ww = ini["window"]["width"];
-			if (!ww.empty())
-				windowWidth = std::stoi(ww);
-			std::string wh = ini["window"]["height"];
-			if (!wh.empty())
-				windowHeight = std::stoi(wh);
-			std::string wpx = ini["window"]["posx"];
-			if (!wpx.empty())
-				windowPosX = std::stoi(wpx);
-			std::string wpy = ini["window"]["posy"];
-			if (!wpy.empty())
-				windowPosY = std::stoi(wpy);
-			std::string wm = ini["window"]["maximized"];
-			if (!wm.empty())
-				windowMaximized = std::stoi(wm) == 0 ? false : true;
+			windowWidth = GetConfigValue(ini, "window", "width", windowWidth);
+			windowHeight = GetConfigValue(ini, "window", "height", windowHeight);
+			windowPosX = GetConfigValue(ini, "window", "posx", windowPosX);
+			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
+			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
 		}
 
-		void SaveConfig(const std::string & orgName, const std::string & appName)
+		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
@@ -106,7 +130,17 @@ namespace ImFrame
 			ini["window"]["posx"] = std::to_string(windowPosX);
 			ini["window"]["posy"] = std::to_string(windowPosY);
 			ini["window"]["maximized"] = std::to_string(windowMaximized ? 1 : 0);
-			file.write(ini, true);
+			file.write(ini);
+		}
+
+		void OnExit()
+		{
+#ifdef IMFRAME_WINDOWS
+
+			// Assert that the function returns zero indicating no memory leaks from
+			// the debug CRT libraries.
+			assert(!_CrtDumpMemoryLeaks() && "Memory leak detected!");
+#endif
 		}
 
 	}
@@ -118,14 +152,113 @@ namespace ImFrame
 		return buffer;
 	}
 
+	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath)
+	{
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_OpenDialog(filters, defaultPath, &outPath);
+		if (result == NFD_OKAY)
+		{
+			std::string outStr = outPath;
+			free(outPath);
+			return outStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath)
+	{
+		nfdpathset_t pathSet;
+		nfdresult_t result = NFD_OpenDialogMultiple(filters, defaultPath, &pathSet);
+		if (result == NFD_OKAY)
+		{
+			std::vector<std::filesystem::path> paths;
+			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); ++i)
+			{
+				std::string path = NFD_PathSet_GetPath(&pathSet, i);
+				paths.emplace_back(path);
+			}
+			NFD_PathSet_Free(&pathSet);
+			return paths;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+	}
+
+	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath)
+	{
+		nfdchar_t * savePath = NULL;
+		nfdresult_t result = NFD_SaveDialog(filters, defaultPath, &savePath);
+		if (result == NFD_OKAY)
+		{
+			std::string saveStr = savePath;
+			free(savePath);
+			return saveStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
+	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
+	{
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_PickFolder(defaultPath, &outPath);
+		if (result == NFD_OKAY)
+		{
+			std::string folderStr = outPath;
+			free(outPath);
+			return folderStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
 
-		// Read existing config data
-		GetConfig(orgName, appName);
+		// Signal this function to execute on exit
+		atexit(OnExit);
 
-		// Init GLFW and create window, setup callbacks, etc
+#ifdef IMFRAME_WINDOWS
+		// Enable memory leak checking
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+#endif
+
+		// Read existing config data
+		mINI::INIStructure ini;
+		GetConfig(ini, orgName, appName);
+
+		// Init GLFW and create window
 		glfwSetErrorCallback(ErrorCallback);
 		if (!glfwInit())
 			return 1;
@@ -138,10 +271,14 @@ namespace ImFrame
 			glfwTerminate();
 			return 1;
 		}
+
+		// Set up window callbacks
 		glfwSetWindowPosCallback(window, WindowPosCallback);
 		glfwSetWindowSizeCallback(window, WindowSizeCallback);
 		glfwSetWindowMaximizeCallback(window, WindowMaximizeCallback);
 		glfwSetKeyCallback(window, KeyCallback);
+		glfwSetMouseButtonCallback(window, WindowMouseButtonCallback);
+		glfwSetCursorPosCallback(window, WindowCursorPositionCallback);
 		glfwSetWindowPos(window, windowPosX, windowPosY);
 		if (windowMaximized)
 			glfwMaximizeWindow(window);
@@ -154,6 +291,8 @@ namespace ImFrame
 		// Initialize ImGui
 		ImGui::CreateContext();
 		ImGuiIO & io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		fs::path iniPath = GetConfigFolder(orgName, appName);
 		iniPath.append("imgui.ini");
 		auto iniStr = iniPath.string();
@@ -194,6 +333,17 @@ namespace ImFrame
 			// Render ImGui
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+			// Update and Render additional Platform Windows
+			// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+			//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				GLFWwindow * backup_current_context = glfwGetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				glfwMakeContextCurrent(backup_current_context);
+			}
+
 			// Present buffer
 			glfwSwapBuffers(window);
 		}
@@ -202,7 +352,7 @@ namespace ImFrame
 		appPtr = nullptr;
 
 		// Save config data to disk
-		SaveConfig(orgName, appName);
+		SaveConfig(ini, orgName, appName);
 
 		// Shut down ImGui and ImPlot
 		ImGui_ImplOpenGL3_DestroyFontsTexture();

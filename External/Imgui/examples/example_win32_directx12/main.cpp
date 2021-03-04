@@ -1,6 +1,10 @@
-// dear imgui: standalone example application for DirectX 12
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-// FIXME: 64-bit only for now! (Because sizeof(ImTextureId) == sizeof(void*))
+// Dear ImGui: standalone example application for DirectX 12
+// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
+// Read online: https://github.com/ocornut/imgui/tree/master/docs
+
+// Important: to compile on 32-bit systems, the DirectX12 backend requires code to be compiled with '#define ImTextureID ImU64'.
+// This is because we need ImTextureID to carry a 64-bit value and by default ImTextureID is defined as void*.
+// This define is set in the example .vcxproj file and need to be replicated in your app or by adding it to your imconfig.h file.
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -57,6 +61,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int main(int, char**)
 {
     // Create application window
+    //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
     ::RegisterClassEx(&wc);
     HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Dear ImGui DirectX12 Example"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
@@ -77,14 +82,26 @@ int main(int, char**)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
-    // Setup Platform/Renderer bindings
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX12_Init(g_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
         DXGI_FORMAT_R8G8B8A8_UNORM, g_pd3dSrvDescHeap,
@@ -171,9 +188,11 @@ int main(int, char**)
         }
 
         // Rendering
-        FrameContext* frameCtxt = WaitForNextFrameResources();
+        ImGui::Render();
+
+        FrameContext* frameCtx = WaitForNextFrameResources();
         UINT backBufferIdx = g_pSwapChain->GetCurrentBackBufferIndex();
-        frameCtxt->CommandAllocator->Reset();
+        frameCtx->CommandAllocator->Reset();
 
         D3D12_RESOURCE_BARRIER barrier = {};
         barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -182,13 +201,14 @@ int main(int, char**)
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-        g_pd3dCommandList->Reset(frameCtxt->CommandAllocator, NULL);
+        g_pd3dCommandList->Reset(frameCtx->CommandAllocator, NULL);
         g_pd3dCommandList->ResourceBarrier(1, &barrier);
-        g_pd3dCommandList->ClearRenderTargetView(g_mainRenderTargetDescriptor[backBufferIdx], (float*)&clear_color, 0, NULL);
+
+        // Render Dear ImGui graphics
+        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        g_pd3dCommandList->ClearRenderTargetView(g_mainRenderTargetDescriptor[backBufferIdx], clear_color_with_alpha, 0, NULL);
         g_pd3dCommandList->OMSetRenderTargets(1, &g_mainRenderTargetDescriptor[backBufferIdx], FALSE, NULL);
         g_pd3dCommandList->SetDescriptorHeaps(1, &g_pd3dSrvDescHeap);
-        ImGui::Render();
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), g_pd3dCommandList);
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
         barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
@@ -197,16 +217,25 @@ int main(int, char**)
 
         g_pd3dCommandQueue->ExecuteCommandLists(1, (ID3D12CommandList* const*)&g_pd3dCommandList);
 
+        // Update and Render additional Platform Windows
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault(NULL, (void*)g_pd3dCommandList);
+        }
+
         g_pSwapChain->Present(1, 0); // Present with vsync
         //g_pSwapChain->Present(0, 0); // Present without vsync
 
         UINT64 fenceValue = g_fenceLastSignaledValue + 1;
         g_pd3dCommandQueue->Signal(g_fence, fenceValue);
         g_fenceLastSignaledValue = fenceValue;
-        frameCtxt->FenceValue = fenceValue;
+        frameCtx->FenceValue = fenceValue;
     }
 
     WaitForLastSubmittedFrame();
+
+    // Cleanup
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -240,18 +269,31 @@ bool CreateDeviceD3D(HWND hWnd)
         sd.Stereo = FALSE;
     }
 
+    // [DEBUG] Enable debug interface
 #ifdef DX12_ENABLE_DEBUG_LAYER
     ID3D12Debug* pdx12Debug = NULL;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pdx12Debug))))
-    {
         pdx12Debug->EnableDebugLayer();
-        pdx12Debug->Release();
-    }
 #endif
 
+    // Create device
     D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
     if (D3D12CreateDevice(NULL, featureLevel, IID_PPV_ARGS(&g_pd3dDevice)) != S_OK)
         return false;
+
+    // [DEBUG] Setup debug interface to break on any warnings/errors
+#ifdef DX12_ENABLE_DEBUG_LAYER
+    if (pdx12Debug != NULL)
+    {
+        ID3D12InfoQueue* pInfoQueue = NULL;
+        g_pd3dDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue));
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        pInfoQueue->Release();
+        pdx12Debug->Release();
+    }
+#endif
 
     {
         D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -307,9 +349,11 @@ bool CreateDeviceD3D(HWND hWnd)
     {
         IDXGIFactory4* dxgiFactory = NULL;
         IDXGISwapChain1* swapChain1 = NULL;
-        if (CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)) != S_OK ||
-            dxgiFactory->CreateSwapChainForHwnd(g_pd3dCommandQueue, hWnd, &sd, NULL, NULL, &swapChain1) != S_OK ||
-            swapChain1->QueryInterface(IID_PPV_ARGS(&g_pSwapChain)) != S_OK)
+        if (CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory)) != S_OK)
+            return false;
+        if (dxgiFactory->CreateSwapChainForHwnd(g_pd3dCommandQueue, hWnd, &sd, NULL, NULL, &swapChain1) != S_OK)
+            return false;
+        if (swapChain1->QueryInterface(IID_PPV_ARGS(&g_pSwapChain)) != S_OK)
             return false;
         swapChain1->Release();
         dxgiFactory->Release();
@@ -367,13 +411,13 @@ void CleanupRenderTarget()
 
 void WaitForLastSubmittedFrame()
 {
-    FrameContext* frameCtxt = &g_frameContext[g_frameIndex % NUM_FRAMES_IN_FLIGHT];
+    FrameContext* frameCtx = &g_frameContext[g_frameIndex % NUM_FRAMES_IN_FLIGHT];
 
-    UINT64 fenceValue = frameCtxt->FenceValue;
+    UINT64 fenceValue = frameCtx->FenceValue;
     if (fenceValue == 0)
         return; // No fence was signaled
 
-    frameCtxt->FenceValue = 0;
+    frameCtx->FenceValue = 0;
     if (g_fence->GetCompletedValue() >= fenceValue)
         return;
 
@@ -389,11 +433,11 @@ FrameContext* WaitForNextFrameResources()
     HANDLE waitableObjects[] = { g_hSwapChainWaitableObject, NULL };
     DWORD numWaitableObjects = 1;
 
-    FrameContext* frameCtxt = &g_frameContext[nextFrameIndex % NUM_FRAMES_IN_FLIGHT];
-    UINT64 fenceValue = frameCtxt->FenceValue;
+    FrameContext* frameCtx = &g_frameContext[nextFrameIndex % NUM_FRAMES_IN_FLIGHT];
+    UINT64 fenceValue = frameCtx->FenceValue;
     if (fenceValue != 0) // means no fence was signaled
     {
-        frameCtxt->FenceValue = 0;
+        frameCtx->FenceValue = 0;
         g_fence->SetEventOnCompletion(fenceValue, g_fenceEvent);
         waitableObjects[1] = g_fenceEvent;
         numWaitableObjects = 2;
@@ -401,7 +445,7 @@ FrameContext* WaitForNextFrameResources()
 
     WaitForMultipleObjects(numWaitableObjects, waitableObjects, TRUE, INFINITE);
 
-    return frameCtxt;
+    return frameCtx;
 }
 
 void ResizeSwapChain(HWND hWnd, int width, int height)
