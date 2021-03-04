@@ -36,6 +36,8 @@ namespace Features
 	private:
 
 		bool m_fileOpen = false;
+		bool m_fileSaveAs = false;
+		bool m_pickFolder = false;
 		bool m_showImGuiDemo = true;
 		bool m_showImPlotDemo = true;
 		bool m_showGlDemo = true;

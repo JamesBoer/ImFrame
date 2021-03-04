@@ -32,6 +32,8 @@ add_subdirectory("External/glfw")
 add_subdirectory("External/Imgui")
 add_subdirectory("External/Implot")
 add_subdirectory("External/nativefiledialog")
+add_custom_target(linmath SOURCES "External/linmath/linmath.h")
+add_custom_target(mINI SOURCES "External/mINI/src/mini/ini.h")
 
 # Indicate that we should place these in the External project folder
 set_property(TARGET glad PROPERTY FOLDER "External")
@@ -39,6 +41,8 @@ set_property(TARGET glfw PROPERTY FOLDER "External")
 set_property(TARGET Imgui PROPERTY FOLDER "External")
 set_property(TARGET Implot PROPERTY FOLDER "External")
 set_property(TARGET nativefiledialog PROPERTY FOLDER "External")
+set_property(TARGET linmath PROPERTY FOLDER "External")
+set_property(TARGET mINI PROPERTY FOLDER "External")
 
 # Add source files and dependencies to library
 set(

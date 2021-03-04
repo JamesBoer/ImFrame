@@ -35,8 +35,12 @@ add_library(${PROJECT_NAME} ${source_list})
 # Set compiler options
 if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /wd4996)
-else()
-	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -Wno-format-truncation)
+endif()
+if(APPLE)
+	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror)
+endif()
+if(UNIX AND NOT APPLE)
+	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -Wno-stringop-truncation -Wno-format-truncation)
 endif()
 
 # GTK specific section for Linux build

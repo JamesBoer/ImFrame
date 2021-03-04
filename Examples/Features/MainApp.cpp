@@ -46,8 +46,26 @@ void MainApp::OnUpdate()
 		{
 			if (ImGui::MenuItem("Open...", nullptr, &m_fileOpen))
 			{
-				auto path = ImFrame::OpenFileDialog("", "");
+				auto path = ImFrame::OpenFilesDialog("png,jpg", nullptr);
 				m_fileOpen = false;
+				if (path)
+				{
+					//printf("%s", path.value().c_str());
+				}
+			}
+			if (ImGui::MenuItem("Save As...", nullptr, &m_fileSaveAs))
+			{
+				auto path = ImFrame::SaveFileDialog("png,jpg", "TestFile.jpg");
+				m_fileSaveAs = false;
+				if (path)
+				{
+					//printf("%s", path.value().c_str());
+				}
+			}
+			if (ImGui::MenuItem("Pick Folder...", nullptr, &m_pickFolder))
+			{
+				auto path = ImFrame::PickFolderDialog(nullptr);
+				m_pickFolder = false;
 				if (path)
 				{
 					//printf("%s", path.value().c_str());

@@ -89,6 +89,22 @@ namespace ImFrame
 				appPtr->OnCursorPosition(x, y);
 		}
 
+		int GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, int defaultValue)
+		{
+			auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stoi(s);
+		}
+
+		bool GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, bool defaultValue)
+		{
+			auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stoi(s) == 0 ? false : true;
+		}
+
 		void GetConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
@@ -96,21 +112,11 @@ namespace ImFrame
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
 			file.read(ini);
-			std::string ww = ini["window"]["width"];
-			if (!ww.empty())
-				windowWidth = std::stoi(ww);
-			std::string wh = ini["window"]["height"];
-			if (!wh.empty())
-				windowHeight = std::stoi(wh);
-			std::string wpx = ini["window"]["posx"];
-			if (!wpx.empty())
-				windowPosX = std::stoi(wpx);
-			std::string wpy = ini["window"]["posy"];
-			if (!wpy.empty())
-				windowPosY = std::stoi(wpy);
-			std::string wm = ini["window"]["maximized"];
-			if (!wm.empty())
-				windowMaximized = std::stoi(wm) == 0 ? false : true;
+			windowWidth = GetConfigValue(ini, "window", "width", windowWidth);
+			windowHeight = GetConfigValue(ini, "window", "height", windowHeight);
+			windowPosX = GetConfigValue(ini, "window", "posx", windowPosX);
+			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
+			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
 		}
 
 		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
@@ -124,7 +130,7 @@ namespace ImFrame
 			ini["window"]["posx"] = std::to_string(windowPosX);
 			ini["window"]["posy"] = std::to_string(windowPosY);
 			ini["window"]["maximized"] = std::to_string(windowMaximized ? 1 : 0);
-			file.write(ini, true);
+			file.write(ini);
 		}
 
 		void OnExit()
@@ -146,11 +152,10 @@ namespace ImFrame
 		return buffer;
 	}
 
-	std::optional<std::filesystem::path> OpenFileDialog([[maybe_unused]] const std::string & filters, [[maybe_unused]] const std::string & defaultPath)
+	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath)
 	{
 		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
-
+		nfdresult_t result = NFD_OpenDialog(filters, defaultPath, &outPath);
 		if (result == NFD_OKAY)
 		{
 			std::string outStr = outPath;
@@ -163,7 +168,75 @@ namespace ImFrame
 		}
 		else
 		{
-			//printf("Error: %s\n", NFD_GetError());
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath)
+	{
+		nfdpathset_t pathSet;
+		nfdresult_t result = NFD_OpenDialogMultiple(filters, defaultPath, &pathSet);
+		if (result == NFD_OKAY)
+		{
+			std::vector<std::filesystem::path> paths;
+			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); ++i)
+			{
+				std::string path = NFD_PathSet_GetPath(&pathSet, i);
+				paths.emplace_back(path);
+			}
+			NFD_PathSet_Free(&pathSet);
+			return paths;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+	}
+
+	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath)
+	{
+		nfdchar_t * savePath = NULL;
+		nfdresult_t result = NFD_SaveDialog(filters, defaultPath, &savePath);
+		if (result == NFD_OKAY)
+		{
+			std::string saveStr = savePath;
+			free(savePath);
+			return saveStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
+	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
+	{
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_PickFolder(defaultPath, &outPath);
+		if (result == NFD_OKAY)
+		{
+			std::string folderStr = outPath;
+			free(outPath);
+			return folderStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
