@@ -53,6 +53,24 @@ void MainApp::OnUpdate()
 					//printf("%s", path.value().c_str());
 				}
 			}
+			if (ImGui::MenuItem("Save As...", nullptr, &m_fileSaveAs))
+			{
+				auto path = ImFrame::SaveFileDialog("png,jpg", "TestFile.jpg");
+				m_fileSaveAs = false;
+				if (path)
+				{
+					//printf("%s", path.value().c_str());
+				}
+			}
+			if (ImGui::MenuItem("Pick Folder...", nullptr, &m_pickFolder))
+			{
+				auto path = ImFrame::PickFolderDialog(nullptr);
+				m_pickFolder = false;
+				if (path)
+				{
+					//printf("%s", path.value().c_str());
+				}
+			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("View"))

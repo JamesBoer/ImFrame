@@ -197,7 +197,48 @@ namespace ImFrame
 			//NFD_GetError() gets last error;
 			return std::optional<std::vector<std::filesystem::path>>();
 		}
+	}
 
+	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath)
+	{
+		nfdchar_t * savePath = NULL;
+		nfdresult_t result = NFD_SaveDialog(filters, defaultPath, &savePath);
+		if (result == NFD_OKAY)
+		{
+			std::string saveStr = savePath;
+			free(savePath);
+			return saveStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
+	}
+
+	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
+	{
+		nfdchar_t * outPath = NULL;
+		nfdresult_t result = NFD_PickFolder(defaultPath, &outPath);
+		if (result == NFD_OKAY)
+		{
+			std::string folderStr = outPath;
+			free(outPath);
+			return folderStr;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::filesystem::path>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::filesystem::path>();
+		}
 	}
 
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
