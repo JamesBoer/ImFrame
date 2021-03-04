@@ -146,11 +146,10 @@ namespace ImFrame
 		return buffer;
 	}
 
-	std::optional<std::filesystem::path> OpenFileDialog([[maybe_unused]] const std::string & filters, [[maybe_unused]] const std::string & defaultPath)
+	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath)
 	{
 		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
-
+		nfdresult_t result = NFD_OpenDialog(filters, defaultPath, &outPath);
 		if (result == NFD_OKAY)
 		{
 			std::string outStr = outPath;
@@ -163,9 +162,36 @@ namespace ImFrame
 		}
 		else
 		{
-			//printf("Error: %s\n", NFD_GetError());
+			//NFD_GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
+	}
+
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath)
+	{
+		nfdpathset_t pathSet;
+		nfdresult_t result = NFD_OpenDialogMultiple(filters, defaultPath, &pathSet);
+		if (result == NFD_OKAY)
+		{
+			std::vector<std::filesystem::path> paths;
+			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); ++i)
+			{
+				std::string path = NFD_PathSet_GetPath(&pathSet, i);
+				paths.emplace_back(path);
+			}
+			NFD_PathSet_Free(&pathSet);
+			return paths;
+		}
+		else if (result == NFD_CANCEL)
+		{
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+		else
+		{
+			//NFD_GetError() gets last error;
+			return std::optional<std::vector<std::filesystem::path>>();
+		}
+
 	}
 
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)

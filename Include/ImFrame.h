@@ -111,7 +111,8 @@ namespace ImFrame
 
 
 	// Native file and folder dialog functions
-	std::optional<std::filesystem::path> OpenFileDialog(const std::string & filters, const std::string & defaultPath);
+	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath);
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath);
 
 
 

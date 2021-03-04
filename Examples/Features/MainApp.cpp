@@ -46,7 +46,7 @@ void MainApp::OnUpdate()
 		{
 			if (ImGui::MenuItem("Open...", nullptr, &m_fileOpen))
 			{
-				auto path = ImFrame::OpenFileDialog("", "");
+				auto path = ImFrame::OpenFilesDialog("png,jpg", nullptr);
 				m_fileOpen = false;
 				if (path)
 				{
