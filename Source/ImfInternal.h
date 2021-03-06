@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include <mini/ini.h>
 #include <nfd.h>
+#include <SOIL/SOIL.h>
 
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"

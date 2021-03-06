@@ -432,6 +432,12 @@ namespace ImFrame
 		// Create user-defined app
 		s_appPtr = createAppFn(window);
 
+		// TEMP TEST!!!
+		//GLFWimage icons[1];
+		//icons[0].pixels = SOIL_load_image("c:/Projects/ImFrame/Data/Icons/icon.png", &icons[0].width, &icons[0].height, 0, SOIL_LOAD_RGBA);
+		//glfwSetWindowIcon(window, 1, icons);
+		//SOIL_free_image_data(icons[0].pixels);
+
 		// Main application loop
 		while (!glfwWindowShouldClose(window))
 		{
