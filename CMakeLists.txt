@@ -87,7 +87,6 @@ target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Imgui"
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Implot")
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/linmath")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
-target_include_directories(nativefiledialog PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
 

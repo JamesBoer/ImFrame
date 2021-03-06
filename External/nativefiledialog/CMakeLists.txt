@@ -29,7 +29,7 @@ elseif(UNIX AND NOT APPLE)
 	list(APPEND source_list "src/nfd_gtk.c")
 endif()
 
-# Create executable file as project name
+# Create library from source files
 add_library(${PROJECT_NAME} ${source_list})
 
 # Set compiler options
@@ -60,6 +60,9 @@ if(UNIX AND NOT APPLE)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${GTK3_LIBRARIES})
 
 endif()
+
+# Set include directory
+target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src/include")
 
 # Create folder structure
 foreach(source IN LISTS source_list)
