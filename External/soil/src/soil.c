@@ -26,8 +26,7 @@
 	#include <Carbon/Carbon.h>
 	#define APIENTRY
 #else
-	#include <GL/gl.h>
-	#include <GL/glx.h>
+	#include <glad/glad.h>
 #endif
 
 #include "SOIL/SOIL.h"
@@ -1995,11 +1994,7 @@ int query_DXT_capability( void )
 				CFRelease( extensionName );
 				CFRelease( bundle );
 			#else
-				ext_addr = (P_SOIL_GLCOMPRESSEDTEXIMAGE2DPROC)
-						glXGetProcAddressARB
-						(
-							(const GLubyte *)"glCompressedTexImage2DARB"
-						);
+				
 			#endif
 			/*	Flag it so no checks needed later	*/
 			if( NULL == ext_addr )

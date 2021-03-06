@@ -35,6 +35,10 @@ set(
 add_library(${PROJECT_NAME} ${include_list} ${source_list})
 if(MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32.lib)
+#elseif(UNIX AND NOT APPLE)
+	#find_package(OpenGL REQUIRED)
+	#target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES})
+	#target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES})
 endif()
 
 # Set compiler options

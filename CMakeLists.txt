@@ -92,6 +92,7 @@ target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/nativ
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/soil/include")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
+target_include_directories(soil PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
 
 # Create folder structure
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
