@@ -19,6 +19,8 @@ set(
 	"Main.cpp"
 	"MainApp.cpp"
 	"MainApp.h"
+	"SetBgColor.cpp"
+	"SetBgColor.h"
 	"SetUiFont.cpp"
 	"SetUiFont.h"
 )

@@ -43,6 +43,7 @@ namespace ImFrame
 		int windowPosX = 100;
 		int windowPosY = 100;
 		bool windowMaximized = false;
+		std::array<float, 3> backgroundColor = { 0.08f, 0.08f, 0.08f };
 
 		// ImGui settings
 		bool fontEnabled = true;
@@ -106,12 +107,12 @@ namespace ImFrame
 				appPtr->OnCursorPosition(x, y);
 		}
 
-		double GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, double defaultValue)
+		float GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, float defaultValue)
 		{
 			auto & s = ini[sectionName][valueName];
 			if (s.empty())
 				return defaultValue;
-			return std::stod(s);
+			return std::stof(s);
 		}
 
 		int GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, int defaultValue)
@@ -142,9 +143,12 @@ namespace ImFrame
 			windowPosX = GetConfigValue(ini, "window", "posx", windowPosX);
 			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
 			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
+			backgroundColor[0] = GetConfigValue(ini, "window", "bgcolorr", backgroundColor[0]);
+			backgroundColor[1] = GetConfigValue(ini, "window", "bgcolorg", backgroundColor[1]);
+			backgroundColor[2] = GetConfigValue(ini, "window", "bgcolorb", backgroundColor[2]);
 			fontEnabled = GetConfigValue(ini, "font", "enabled", fontEnabled);
 			fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(fontType)));
-			fontSize = static_cast<float>(GetConfigValue(ini, "font", "size", fontSize));
+			fontSize = GetConfigValue(ini, "font", "size", fontSize);
 		}
 
 		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
@@ -158,6 +162,9 @@ namespace ImFrame
 			ini["window"]["posx"] = std::to_string(windowPosX);
 			ini["window"]["posy"] = std::to_string(windowPosY);
 			ini["window"]["maximized"] = std::to_string(windowMaximized ? 1 : 0);
+			ini["window"]["bgcolorr"] = std::to_string(backgroundColor[0]);
+			ini["window"]["bgcolorg"] = std::to_string(backgroundColor[1]);
+			ini["window"]["bgcolorb"] = std::to_string(backgroundColor[2]);
 			ini["font"]["enabled"] = std::to_string(fontEnabled ? 1 : 0);
 			ini["font"]["type"] = std::to_string(static_cast<int>(fontType));
 			ini["font"]["size"] = std::to_string(fontSize);
@@ -349,6 +356,16 @@ namespace ImFrame
 		}
 	}
 
+	void SetBackgroundColor(std::array<float, 3> color)
+	{
+		backgroundColor = color;
+	}
+
+	std::array<float, 3> GetBackgroundColor()
+	{
+		return backgroundColor;
+	}
+
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
@@ -438,6 +455,7 @@ namespace ImFrame
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 			glViewport(0, 0, width, height);
+			glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Perform app-specific updates

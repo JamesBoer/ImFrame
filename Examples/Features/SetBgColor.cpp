@@ -22,11 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
+#include "Internal.h"
 
-#include <ImFrame.h>
+namespace Features
+{
 
-#include "MainApp.h"
-#include "GLDemo.h"
-#include "SetBgColor.h"
-#include "SetUiFont.h"
+	void SetBgColor(bool * show)
+	{
+		// Specify initial layout if not read from ini
+		const ImGuiViewport * main_viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 50, main_viewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+
+		// Main body of the set background window starts here.
+		if (!ImGui::Begin("Set Background Color", show))
+		{
+			ImGui::End();
+			return;
+		}
+		auto c = ImFrame::GetBackgroundColor();
+		ImVec4 color = { c[0], c[1], c[2], 1.0f };
+		ImGui::ColorPicker4("Background", (float *)&color, ImGuiColorEditFlags_NoAlpha, NULL);
+		ImFrame::SetBackgroundColor({ color.x, color.y, color.z });
+		ImGui::End();
+	}
+
+}

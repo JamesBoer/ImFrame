@@ -63,6 +63,7 @@ THE SOFTWARE.
 #include <string>
 #include <functional>
 #include <optional>
+#include <array>
 #include <vector>
 #include <filesystem>
 
@@ -116,6 +117,10 @@ namespace ImFrame
 	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath);
 	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath);
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
+
+	// Window
+	void SetBackgroundColor(std::array<float, 3> color);
+	std::array<float, 3> GetBackgroundColor();
 
 	// UI Fonts
 	enum class FontType
