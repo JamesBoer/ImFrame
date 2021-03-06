@@ -24,9 +24,10 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <ImFrame.h>
 
-#include "MainApp.h"
-#include "GLDemo.h"
-#include "SetBgColor.h"
-#include "SetUiFont.h"
+namespace Features
+{
+
+	void SetUiFont(bool * show);
+
+}

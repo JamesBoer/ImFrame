@@ -52,6 +52,11 @@ set(
 	"Source/ImFrame.cpp"
 	"Source/ImfUtilities.cpp"
 	"Source/ImfUtilities.h"
+	"Source/Fonts/CarlitoRegular.h"
+	"Source/Fonts/OpenSansRegular.h"
+	"Source/Fonts/OpenSansSemiBold.h"
+	"Source/Fonts/RobotoMedium.h"
+	"Source/Fonts/RobotoRegular.h"
 	"Source/ImGui/imgui_impl_glfw.cpp"
 	"Source/ImGui/imgui_impl_glfw.h"
 	"Source/ImGui/imgui_impl_opengl3.cpp"
@@ -112,4 +117,5 @@ if(NOT imframe_is_subproject)
 	add_subdirectory("Examples/Minimal")
 	set_property(TARGET Features PROPERTY FOLDER "Examples")
 	set_property(TARGET Minimal PROPERTY FOLDER "Examples")
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Features)
 endif()

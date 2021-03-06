@@ -13,22 +13,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set project name
 project (nativefiledialog LANGUAGES CXX)
 
-# GTK specific section for Linux build
-if(UNIX AND NOT APPLE)
-
-	# Use the package PkgConfig to detect GTK+ headers/library files
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-
-	# Setup CMake to use GTK+, tell the compiler where to look for headers
-	# and to the linker where to look for libraries
-	include_directories(${GTK3_INCLUDE_DIRS})
-	link_directories(${GTK3_LIBRARY_DIRS})
-
-	# Add other flags to the compiler
-	add_definitions(${GTK3_CFLAGS_OTHER})
-endif()
-
 # Set the source files to a list
 set(
     source_list
@@ -38,25 +22,11 @@ set(
     "src/nfd_common.h"
 )	
 if(WIN32)
-	list(
-		APPEND
-		source_list
-		"src/nfd_win.cpp"
-	)
-endif()
-if(APPLE)
-	list(
-		APPEND
-		source_list
-		"src/nfd_cocoa.m"
-	)
-endif()
-if(UNIX AND NOT APPLE)
-	list(
-		APPEND
-		source_list
-		"src/nfd_gtk.c"
-	)
+	list(APPEND source_list "src/nfd_win.cpp")
+elseif(APPLE)
+	list(APPEND source_list "src/nfd_cocoa.m")
+elseif(UNIX AND NOT APPLE)
+	list(APPEND source_list "src/nfd_gtk.c")
 endif()
 
 # Create executable file as project name
@@ -76,8 +46,18 @@ endif()
 # GTK specific section for Linux build
 if(UNIX AND NOT APPLE)
 
+	# Use the package PkgConfig to detect GTK+ headers/library files
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+
+	# Add other flags to the compiler
+	add_compile_options(${PROJECT_NAME} PRIVATE ${GTK3_CFLAGS_OTHER})
+
+	# Specify GTK+ include directories for this project
+	target_include_directories(${PROJECT_NAME} PRIVATE ${GTK3_INCLUDE_DIRS})
+
 	# Link the target to the GTK+ libraries
-	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${GTK3_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${GTK3_LIBRARIES})
 
 endif()
 

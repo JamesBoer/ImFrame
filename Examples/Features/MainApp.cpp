@@ -78,6 +78,8 @@ void MainApp::OnUpdate()
 			ImGui::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
 			ImGui::MenuItem("Show ImGui Demo", nullptr, &m_showImGuiDemo);
 			ImGui::MenuItem("Show ImPlot Demo", nullptr, &m_showImPlotDemo);
+			ImGui::MenuItem("Set Background Color...", nullptr, &m_setBgColor);
+			ImGui::MenuItem("Set UI Font...", nullptr, &m_setUiFont);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
@@ -89,4 +91,8 @@ void MainApp::OnUpdate()
 		ImGui::ShowDemoWindow(&m_showImGuiDemo);
 	if (m_showImPlotDemo)
 		ImPlot::ShowDemoWindow(&m_showImPlotDemo);
+	if (m_setBgColor)
+		SetBgColor(&m_setBgColor);
+	if (m_setUiFont)
+		SetUiFont(&m_setUiFont);
 }

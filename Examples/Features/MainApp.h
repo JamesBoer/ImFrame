@@ -41,5 +41,7 @@ namespace Features
 		bool m_showImGuiDemo = true;
 		bool m_showImPlotDemo = true;
 		bool m_showGlDemo = true;
+		bool m_setBgColor = false;
+		bool m_setUiFont = false;
 	};
 }

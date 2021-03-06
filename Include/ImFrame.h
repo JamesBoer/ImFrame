@@ -63,6 +63,7 @@ THE SOFTWARE.
 #include <string>
 #include <functional>
 #include <optional>
+#include <array>
 #include <vector>
 #include <filesystem>
 
@@ -117,7 +118,26 @@ namespace ImFrame
 	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath);
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
 
+	// Window
+	void SetBackgroundColor(std::array<float, 3> color);
+	std::array<float, 3> GetBackgroundColor();
 
+	// UI Fonts
+	enum class FontType
+	{
+		CarlitoRegular,
+		OpenSansRegular,
+		OpenSansSemiBold,
+		RobotoMedium,
+		RobotoRegular,
+	};
+
+	bool IsCustomFontEnabled();
+	void EnableCustomFont(bool enable);
+	FontType GetCustomFontType();
+	void SetCustomFontType(FontType font);
+	float GetCustomFontSize();
+	void SetCustomFontSize(float pixelSize);
 
 	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
