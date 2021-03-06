@@ -143,6 +143,6 @@ namespace ImFrame
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
 
 	// Call from main() to run ImFrame framework
-    int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn);
+    int Run(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn);
 
 }

@@ -366,7 +366,7 @@ namespace ImFrame
 		return s_backgroundColor;
 	}
 
-    int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
+    int Run(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
 
