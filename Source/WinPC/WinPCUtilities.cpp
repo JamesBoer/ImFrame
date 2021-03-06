@@ -74,4 +74,13 @@ namespace ImFrame
 		return rootFolder;
 	}
 
+	std::string GetOsExecutableFolder()
+	{
+		WCHAR buffer[1024];
+		DWORD size = GetModuleFileNameW(NULL, buffer, static_cast<DWORD>(std::size(buffer)));
+		if (size == 0)
+			return std::string();
+		return utf8_encode(buffer);
+	}
+
 }

@@ -29,7 +29,7 @@ THE SOFTWARE.
 namespace ImFrame
 {
 
-	std::string GetConfigFolder(const std::string & companyName, const std::string & appName)
+	std::filesystem::path GetConfigFolder(const std::string & companyName, const std::string & appName)
 	{
 		assert(!appName.empty());
 		using namespace std;
@@ -39,7 +39,15 @@ namespace ImFrame
 		p.append(appName);
 		if (!fs::exists(p))
 			fs::create_directories(p);
-		return p.string();
+		return p;
+	}
+
+	std::filesystem::path GetExecutableFolder()
+	{
+		namespace fs = std::filesystem;
+		fs::path p = GetOsExecutableFolder();
+		p.remove_filename();
+		return p;
 	}
 
 }

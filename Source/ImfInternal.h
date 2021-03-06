@@ -42,4 +42,5 @@ THE SOFTWARE.
 namespace ImFrame
 {
 	std::string GetOsConfigFolder();
+	std::string GetOsExecutableFolder();
 }

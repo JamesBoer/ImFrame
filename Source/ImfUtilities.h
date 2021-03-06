@@ -28,6 +28,7 @@ THE SOFTWARE.
 namespace ImFrame
 {
 
-    std::string GetConfigFolder(const std::string & companyName, const std::string & appName);
+    std::filesystem::path GetConfigFolder(const std::string & companyName, const std::string & appName);
+	std::filesystem::path GetExecutableFolder();
 
 }
