@@ -38,22 +38,22 @@ namespace ImFrame
 		// Persistent app data
 
 		// Window data
-		int windowWidth = 800;
-		int windowHeight = 600;
-		int windowPosX = 100;
-		int windowPosY = 100;
-		bool windowMaximized = false;
-		std::array<float, 3> backgroundColor = { 0.08f, 0.08f, 0.08f };
+		int s_windowWidth = 800;
+		int s_windowHeight = 600;
+		int s_windowPosX = 100;
+		int s_windowPosY = 100;
+		bool s_windowMaximized = false;
+		std::array<float, 3> s_backgroundColor = { 0.08f, 0.08f, 0.08f };
 
 		// ImGui settings
-		bool fontEnabled = true;
-		FontType fontType = FontType::RobotoRegular;
-		float fontSize = 15.0f;
+		bool s_fontEnabled = true;
+		FontType s_fontType = FontType::RobotoRegular;
+		float s_fontSize = 15.0f;
 
-		ImAppPtr appPtr;
+		ImAppPtr s_appPtr;
 
-		bool fontChanged = true;
-		ImFont * customFont;
+		bool s_fontChanged = true;
+		ImFont * s_customFont;
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
 		{
@@ -62,49 +62,49 @@ namespace ImFrame
 
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
-			if (appPtr)
-				appPtr->OnKeyEvent(key, scancode, action, mods);
+			if (s_appPtr)
+				s_appPtr->OnKeyEvent(key, scancode, action, mods);
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)
 		{		
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
-				windowPosX = x;
-				windowPosY = y;
+				s_windowPosX = x;
+				s_windowPosY = y;
 			}
-			if (appPtr)
-				appPtr->OnWindowPositionChange(x, y);
+			if (s_appPtr)
+				s_appPtr->OnWindowPositionChange(x, y);
 		}
 
 		void WindowSizeCallback(GLFWwindow * window, int width, int height)
 		{
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
-				windowWidth = width;
-				windowHeight = height;
+				s_windowWidth = width;
+				s_windowHeight = height;
 			}
-			if (appPtr)
-				appPtr->OnWindowSizeChange(width, height);
+			if (s_appPtr)
+				s_appPtr->OnWindowSizeChange(width, height);
 		}
 
 		void WindowMaximizeCallback([[maybe_unused]] GLFWwindow * window, int maximized)
 		{
-			windowMaximized = maximized ? true : false;
-			if (appPtr)
-				appPtr->OnWindowMaximize(windowMaximized);
+			s_windowMaximized = maximized ? true : false;
+			if (s_appPtr)
+				s_appPtr->OnWindowMaximize(s_windowMaximized);
 		}
 
 		void WindowMouseButtonCallback([[maybe_unused]] GLFWwindow * window, int button, int action, int mods)
 		{
-			if (appPtr)
-				appPtr->OnMouseButtonEvent(button, action, mods);
+			if (s_appPtr)
+				s_appPtr->OnMouseButtonEvent(button, action, mods);
 		}
 
 		void WindowCursorPositionCallback([[maybe_unused]] GLFWwindow * window, double x, double y)
 		{
-			if (appPtr)
-				appPtr->OnCursorPosition(x, y);
+			if (s_appPtr)
+				s_appPtr->OnCursorPosition(x, y);
 		}
 
 		float GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, float defaultValue)
@@ -138,17 +138,17 @@ namespace ImFrame
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
 			file.read(ini);
-			windowWidth = GetConfigValue(ini, "window", "width", windowWidth);
-			windowHeight = GetConfigValue(ini, "window", "height", windowHeight);
-			windowPosX = GetConfigValue(ini, "window", "posx", windowPosX);
-			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
-			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
-			backgroundColor[0] = GetConfigValue(ini, "window", "bgcolorr", backgroundColor[0]);
-			backgroundColor[1] = GetConfigValue(ini, "window", "bgcolorg", backgroundColor[1]);
-			backgroundColor[2] = GetConfigValue(ini, "window", "bgcolorb", backgroundColor[2]);
-			fontEnabled = GetConfigValue(ini, "font", "enabled", fontEnabled);
-			fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(fontType)));
-			fontSize = GetConfigValue(ini, "font", "size", fontSize);
+			s_windowWidth = GetConfigValue(ini, "window", "width", s_windowWidth);
+			s_windowHeight = GetConfigValue(ini, "window", "height", s_windowHeight);
+			s_windowPosX = GetConfigValue(ini, "window", "posx", s_windowPosX);
+			s_windowPosY = GetConfigValue(ini, "window", "posy", s_windowPosY);
+			s_windowMaximized = GetConfigValue(ini, "window", "maximized", s_windowMaximized);
+			s_backgroundColor[0] = GetConfigValue(ini, "window", "bgcolorr", s_backgroundColor[0]);
+			s_backgroundColor[1] = GetConfigValue(ini, "window", "bgcolorg", s_backgroundColor[1]);
+			s_backgroundColor[2] = GetConfigValue(ini, "window", "bgcolorb", s_backgroundColor[2]);
+			s_fontEnabled = GetConfigValue(ini, "font", "enabled", s_fontEnabled);
+			s_fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(s_fontType)));
+			s_fontSize = GetConfigValue(ini, "font", "size", s_fontSize);
 		}
 
 		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
@@ -157,17 +157,17 @@ namespace ImFrame
 			fs::path configFolder = GetConfigFolder(orgName, appName);
 			configFolder.append("settings.ini");
 			mINI::INIFile file(configFolder.string());
-			ini["window"]["width"] = std::to_string(windowWidth);
-			ini["window"]["height"] = std::to_string(windowHeight);
-			ini["window"]["posx"] = std::to_string(windowPosX);
-			ini["window"]["posy"] = std::to_string(windowPosY);
-			ini["window"]["maximized"] = std::to_string(windowMaximized ? 1 : 0);
-			ini["window"]["bgcolorr"] = std::to_string(backgroundColor[0]);
-			ini["window"]["bgcolorg"] = std::to_string(backgroundColor[1]);
-			ini["window"]["bgcolorb"] = std::to_string(backgroundColor[2]);
-			ini["font"]["enabled"] = std::to_string(fontEnabled ? 1 : 0);
-			ini["font"]["type"] = std::to_string(static_cast<int>(fontType));
-			ini["font"]["size"] = std::to_string(fontSize);
+			ini["window"]["width"] = std::to_string(s_windowWidth);
+			ini["window"]["height"] = std::to_string(s_windowHeight);
+			ini["window"]["posx"] = std::to_string(s_windowPosX);
+			ini["window"]["posy"] = std::to_string(s_windowPosY);
+			ini["window"]["maximized"] = std::to_string(s_windowMaximized ? 1 : 0);
+			ini["window"]["bgcolorr"] = std::to_string(s_backgroundColor[0]);
+			ini["window"]["bgcolorg"] = std::to_string(s_backgroundColor[1]);
+			ini["window"]["bgcolorb"] = std::to_string(s_backgroundColor[2]);
+			ini["font"]["enabled"] = std::to_string(s_fontEnabled ? 1 : 0);
+			ini["font"]["type"] = std::to_string(static_cast<int>(s_fontType));
+			ini["font"]["size"] = std::to_string(s_fontSize);
 			file.write(ini);
 		}
 
@@ -183,38 +183,38 @@ namespace ImFrame
 
 		void UpdateCustomFont()
 		{
-			if (!fontChanged)
+			if (!s_fontChanged)
 				return;
-			if (fontEnabled)
+			if (s_fontEnabled)
 			{
 				ImGuiIO & io = ImGui::GetIO();
-				if (customFont)
+				if (s_customFont)
 					io.Fonts->Clear();
-				switch (fontType)
+				switch (s_fontType)
 				{
 					case FontType::CarlitoRegular:
-						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, fontSize);
+						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, s_fontSize);
 						break;
 					case FontType::OpenSansRegular:
-						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, fontSize);
+						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, s_fontSize);
 						break;
 					case FontType::OpenSansSemiBold:
-						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, fontSize);
+						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, s_fontSize);
 						break;
 					case FontType::RobotoMedium:
-						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, fontSize);
+						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, s_fontSize);
 						break;
 					case FontType::RobotoRegular:
-						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, fontSize);
+						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, s_fontSize);
 						break;
 				}
 				ImGui_ImplOpenGL3_CreateFontsTexture();
 			}
 			else
 			{
-				customFont = nullptr;
+				s_customFont = nullptr;
 			}
-			fontChanged = false;
+			s_fontChanged = false;
 		}
 	}
 
@@ -316,54 +316,54 @@ namespace ImFrame
 
 	bool IsCustomFontEnabled()
 	{
-		return fontEnabled;
+		return s_fontEnabled;
 	}
 
 	void EnableCustomFont(bool enable)
 	{
-		if (enable != fontEnabled)
+		if (enable != s_fontEnabled)
 		{
-			fontEnabled = enable;
-			fontChanged = true;
+			s_fontEnabled = enable;
+			s_fontChanged = true;
 		}
 	}
 
 	FontType GetCustomFontType()
 	{
-		return fontType;
+		return s_fontType;
 	}
 
 	void SetCustomFontType(FontType font)
 	{
-		if (font != fontType)
+		if (font != s_fontType)
 		{
-			fontType = font;
-			fontChanged = true;
+			s_fontType = font;
+			s_fontChanged = true;
 		}
 	}
 
 	float GetCustomFontSize()
 	{
-		return fontSize;
+		return s_fontSize;
 	}
 
 	void SetCustomFontSize(float pixelSize)
 	{
-		if (pixelSize != fontSize)
+		if (pixelSize != s_fontSize)
 		{
-			fontSize = pixelSize;
-			fontChanged = true;
+			s_fontSize = pixelSize;
+			s_fontChanged = true;
 		}
 	}
 
 	void SetBackgroundColor(std::array<float, 3> color)
 	{
-		backgroundColor = color;
+		s_backgroundColor = color;
 	}
 
 	std::array<float, 3> GetBackgroundColor()
 	{
-		return backgroundColor;
+		return s_backgroundColor;
 	}
 
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
@@ -390,7 +390,7 @@ namespace ImFrame
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		GLFWwindow * window = glfwCreateWindow(windowWidth, windowHeight, appName.c_str(), NULL, NULL);
+		GLFWwindow * window = glfwCreateWindow(s_windowWidth, s_windowHeight, appName.c_str(), NULL, NULL);
 		if (!window)
 		{
 			glfwTerminate();
@@ -404,8 +404,8 @@ namespace ImFrame
 		glfwSetKeyCallback(window, KeyCallback);
 		glfwSetMouseButtonCallback(window, WindowMouseButtonCallback);
 		glfwSetCursorPosCallback(window, WindowCursorPositionCallback);
-		glfwSetWindowPos(window, windowPosX, windowPosY);
-		if (windowMaximized)
+		glfwSetWindowPos(window, s_windowPosX, s_windowPosY);
+		if (s_windowMaximized)
 			glfwMaximizeWindow(window);
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
@@ -430,7 +430,7 @@ namespace ImFrame
 		ImPlot::CreateContext();
 
 		// Create user-defined app
-		appPtr = createAppFn(window);
+		s_appPtr = createAppFn(window);
 
 		// Main application loop
 		while (!glfwWindowShouldClose(window))
@@ -447,19 +447,19 @@ namespace ImFrame
 			ImGui::NewFrame();
 
 			// Use custom font for this frame
-			ImFont * font = customFont;
+			ImFont * font = s_customFont;
 			if (font)
-				ImGui::PushFont(customFont);
+				ImGui::PushFont(font);
 
 			// Clear render buffer
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 			glViewport(0, 0, width, height);
-			glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 1.0f);
+			glClearColor(s_backgroundColor[0], s_backgroundColor[1], s_backgroundColor[2], 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Perform app-specific updates
-			appPtr->OnUpdate();
+			s_appPtr->OnUpdate();
 
 			// Pop custom font at the end of the frame
 			if (font)
@@ -485,7 +485,7 @@ namespace ImFrame
 		}
 
 		// Delete application
-		appPtr = nullptr;
+		s_appPtr = nullptr;
 
 		// Save config data to disk
 		SaveConfig(ini, orgName, appName);

@@ -63,25 +63,11 @@ set(
 	"Source/ImGui/imgui_impl_opengl3.h"
 )
 if(WIN32)
-	list(
-		APPEND
-		source_list
-		"Source/WinPC/WinPCUtilities.cpp"
-	)
-endif()
-if(APPLE)
-	list(
-		APPEND
-		source_list
-		"Source/macOS/macOSUtilities.mm"
-	)
-endif()
-if(UNIX AND NOT APPLE)
-	list(
-		APPEND
-		source_list
-		"Source/Linux/LinuxUtilities.cpp"
-	)
+	list(APPEND source_list "Source/WinPC/WinPCUtilities.cpp")
+elseif(APPLE)
+	list(APPEND source_list "Source/macOS/macOSUtilities.mm")
+elseif(UNIX AND NOT APPLE)
+	list(APPEND source_list "Source/Linux/LinuxUtilities.cpp")
 endif()
 add_library(ImFrame ${source_list})
 target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nativefiledialog)
