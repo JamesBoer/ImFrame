@@ -48,20 +48,19 @@ namespace Features
 		if (enableCustomFont)
 		{
 			const char * fonts[] = { "Carlito Regular", "OpenSans Regular", "OpenSans Semi-Bold", "Roboto Medium", "Roboto Regular" };
-			auto currentFont = ImFrame::GetCustomFont();
-			int index = static_cast<int>(currentFont.first);
+			ImFrame::FontType fontType = ImFrame::GetCustomFontType();
+			int index = static_cast<int>(fontType);
 			if (ImGui::Combo("Font Name", &index, fonts, IM_ARRAYSIZE(fonts)))
 			{
-				currentFont.first = static_cast<ImFrame::UiFont>(index);
-				ImFrame::SetCustomFont(currentFont.first, currentFont.second);
+				fontType = static_cast<ImFrame::FontType>(index);
+				ImFrame::SetCustomFontType(fontType);
 			}
-			ImU8 size = static_cast<ImU8>(currentFont.second);
+			ImU8 fontSize = static_cast<ImU8>(ImFrame::GetCustomFontSize());
 			const ImU8 one = 1;
-			if (ImGui::InputScalar("input u8", ImGuiDataType_U8, &size, &one, NULL, "%u"))
+			if (ImGui::InputScalar("input u8", ImGuiDataType_U8, &fontSize, &one, NULL, "%u"))
 			{
-				size = std::clamp<ImU8>(size, 10, 24);
-				currentFont.second = static_cast<float>(size);
-				ImFrame::SetCustomFont(currentFont.first, currentFont.second);
+				fontSize = std::clamp<ImU8>(fontSize, 10, 24);
+				ImFrame::SetCustomFontSize(static_cast<float>(fontSize));
 			}
 		}
 		ImGui::End();

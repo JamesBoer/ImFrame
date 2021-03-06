@@ -118,7 +118,7 @@ namespace ImFrame
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
 
 	// UI Fonts
-	enum class UiFont
+	enum class FontType
 	{
 		CarlitoRegular,
 		OpenSansRegular,
@@ -129,8 +129,10 @@ namespace ImFrame
 
 	bool IsCustomFontEnabled();
 	void EnableCustomFont(bool enable);
-	std::pair<UiFont, float> GetCustomFont();
-	void SetCustomFont(UiFont font, float pixelSize);
+	FontType GetCustomFontType();
+	void SetCustomFontType(FontType font);
+	float GetCustomFontSize();
+	void SetCustomFontSize(float pixelSize);
 
 	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;

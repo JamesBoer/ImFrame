@@ -46,7 +46,7 @@ namespace ImFrame
 
 		// ImGui settings
 		bool fontEnabled = true;
-		UiFont fontType = UiFont::RobotoRegular;
+		FontType fontType = FontType::RobotoRegular;
 		float fontSize = 15.0f;
 
 		ImAppPtr appPtr;
@@ -143,7 +143,7 @@ namespace ImFrame
 			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
 			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
 			fontEnabled = GetConfigValue(ini, "font", "enabled", fontEnabled);
-			fontType = static_cast<ImFrame::UiFont>(GetConfigValue(ini, "font", "type", static_cast<int>(fontType)));
+			fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(fontType)));
 			fontSize = static_cast<float>(GetConfigValue(ini, "font", "size", fontSize));
 		}
 
@@ -185,19 +185,19 @@ namespace ImFrame
 					io.Fonts->Clear();
 				switch (fontType)
 				{
-					case UiFont::CarlitoRegular:
+					case FontType::CarlitoRegular:
 						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, fontSize);
 						break;
-					case UiFont::OpenSansRegular:
+					case FontType::OpenSansRegular:
 						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, fontSize);
 						break;
-					case UiFont::OpenSansSemiBold:
+					case FontType::OpenSansSemiBold:
 						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, fontSize);
 						break;
-					case UiFont::RobotoMedium:
+					case FontType::RobotoMedium:
 						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, fontSize);
 						break;
-					case UiFont::RobotoRegular:
+					case FontType::RobotoRegular:
 						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, fontSize);
 						break;
 				}
@@ -321,21 +321,33 @@ namespace ImFrame
 		}
 	}
 
-	std::pair<UiFont, float> GetCustomFont()
+	FontType GetCustomFontType()
 	{
-		return { fontType, fontSize };
+		return fontType;
 	}
 
-	void SetCustomFont(UiFont font, float pixelSize)
+	void SetCustomFontType(FontType font)
 	{
-		if (font != fontType || pixelSize != fontSize)
+		if (font != fontType)
 		{
 			fontType = font;
-			fontSize = pixelSize;
 			fontChanged = true;
 		}
 	}
 
+	float GetCustomFontSize()
+	{
+		return fontSize;
+	}
+
+	void SetCustomFontSize(float pixelSize)
+	{
+		if (pixelSize != fontSize)
+		{
+			fontSize = pixelSize;
+			fontChanged = true;
+		}
+	}
 
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
