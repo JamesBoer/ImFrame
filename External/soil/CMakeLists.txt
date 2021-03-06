@@ -37,6 +37,13 @@ if(MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE opengl32.lib)
 endif()
 
+# Set compiler options
+if(MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE /wd4244 /wd4018 /wd4996 /wd4267)
+else()
+	target_compile_options(${PROJECT_NAME} PRIVATE)
+endif()
+
 # Set include directory
 target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")
 
