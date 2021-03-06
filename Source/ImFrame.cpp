@@ -24,18 +24,35 @@ THE SOFTWARE.
 
 #include "ImfInternal.h"
 
+#include "Fonts/CarlitoRegular.h"
+#include "Fonts/OpenSansRegular.h"
+#include "Fonts/OpenSansSemiBold.h"
+#include "Fonts/RobotoMedium.h"
+#include "Fonts/RobotoRegular.h"
+
 namespace ImFrame
 {
 	namespace
 	{
 
 		// Persistent app data
+
+		// Window data
 		int windowWidth = 800;
 		int windowHeight = 600;
 		int windowPosX = 100;
 		int windowPosY = 100;
 		bool windowMaximized = false;
+
+		// ImGui settings
+		bool fontEnabled = true;
+		UiFont fontType = UiFont::RobotoRegular;
+		float fontSize = 15.0f;
+
 		ImAppPtr appPtr;
+
+		bool fontChanged = true;
+		ImFont * customFont;
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
 		{
@@ -89,6 +106,14 @@ namespace ImFrame
 				appPtr->OnCursorPosition(x, y);
 		}
 
+		double GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, double defaultValue)
+		{
+			auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stod(s);
+		}
+
 		int GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, int defaultValue)
 		{
 			auto & s = ini[sectionName][valueName];
@@ -117,6 +142,9 @@ namespace ImFrame
 			windowPosX = GetConfigValue(ini, "window", "posx", windowPosX);
 			windowPosY = GetConfigValue(ini, "window", "posy", windowPosY);
 			windowMaximized = GetConfigValue(ini, "window", "maximized", windowMaximized);
+			fontEnabled = GetConfigValue(ini, "font", "enabled", fontEnabled);
+			fontType = static_cast<ImFrame::UiFont>(GetConfigValue(ini, "font", "type", static_cast<int>(fontType)));
+			fontSize = static_cast<float>(GetConfigValue(ini, "font", "size", fontSize));
 		}
 
 		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
@@ -130,6 +158,9 @@ namespace ImFrame
 			ini["window"]["posx"] = std::to_string(windowPosX);
 			ini["window"]["posy"] = std::to_string(windowPosY);
 			ini["window"]["maximized"] = std::to_string(windowMaximized ? 1 : 0);
+			ini["font"]["enabled"] = std::to_string(fontEnabled ? 1 : 0);
+			ini["font"]["type"] = std::to_string(static_cast<int>(fontType));
+			ini["font"]["size"] = std::to_string(fontSize);
 			file.write(ini);
 		}
 
@@ -143,6 +174,41 @@ namespace ImFrame
 #endif
 		}
 
+		void UpdateCustomFont()
+		{
+			if (!fontChanged)
+				return;
+			if (fontEnabled)
+			{
+				ImGuiIO & io = ImGui::GetIO();
+				if (customFont)
+					io.Fonts->Clear();
+				switch (fontType)
+				{
+					case UiFont::CarlitoRegular:
+						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, fontSize);
+						break;
+					case UiFont::OpenSansRegular:
+						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, fontSize);
+						break;
+					case UiFont::OpenSansSemiBold:
+						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, fontSize);
+						break;
+					case UiFont::RobotoMedium:
+						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, fontSize);
+						break;
+					case UiFont::RobotoRegular:
+						customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, fontSize);
+						break;
+				}
+				ImGui_ImplOpenGL3_CreateFontsTexture();
+			}
+			else
+			{
+				customFont = nullptr;
+			}
+			fontChanged = false;
+		}
 	}
 
 	std::string GetVersionString()
@@ -241,6 +307,36 @@ namespace ImFrame
 		}
 	}
 
+	bool IsCustomFontEnabled()
+	{
+		return fontEnabled;
+	}
+
+	void EnableCustomFont(bool enable)
+	{
+		if (enable != fontEnabled)
+		{
+			fontEnabled = enable;
+			fontChanged = true;
+		}
+	}
+
+	std::pair<UiFont, float> GetCustomFont()
+	{
+		return { fontType, fontSize };
+	}
+
+	void SetCustomFont(UiFont font, float pixelSize)
+	{
+		if (font != fontType || pixelSize != fontSize)
+		{
+			fontType = font;
+			fontSize = pixelSize;
+			fontChanged = true;
+		}
+	}
+
+
     int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
@@ -313,10 +409,18 @@ namespace ImFrame
 			// Perform event and input polling
 			glfwPollEvents();
 
+			// Load new font if necessary
+			UpdateCustomFont();
+
 			// Start the Dear ImGui frame
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+
+			// Use custom font for this frame
+			ImFont * font = customFont;
+			if (font)
+				ImGui::PushFont(customFont);
 
 			// Clear render buffer
 			int width, height;
@@ -327,6 +431,10 @@ namespace ImFrame
 			// Perform app-specific updates
 			appPtr->OnUpdate();
 
+			// Pop custom font at the end of the frame
+			if (font)
+				ImGui::PopFont();
+
 			// Render ImGui to draw data
 			ImGui::Render();
 
@@ -334,8 +442,6 @@ namespace ImFrame
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			// Update and Render additional Platform Windows
-			// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-			//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
 			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 			{
 				GLFWwindow * backup_current_context = glfwGetCurrentContext();

@@ -19,6 +19,8 @@ set(
 	"Main.cpp"
 	"MainApp.cpp"
 	"MainApp.h"
+	"SetUiFont.cpp"
+	"SetUiFont.h"
 )
 add_executable(Features WIN32 ${source_list})
 target_link_libraries(Features PRIVATE ImFrame)

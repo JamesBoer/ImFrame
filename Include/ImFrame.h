@@ -117,7 +117,20 @@ namespace ImFrame
 	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath);
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
 
+	// UI Fonts
+	enum class UiFont
+	{
+		CarlitoRegular,
+		OpenSansRegular,
+		OpenSansSemiBold,
+		RobotoMedium,
+		RobotoRegular,
+	};
 
+	bool IsCustomFontEnabled();
+	void EnableCustomFont(bool enable);
+	std::pair<UiFont, float> GetCustomFont();
+	void SetCustomFont(UiFont font, float pixelSize);
 
 	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
