@@ -21,10 +21,8 @@
 	#include <wingdi.h>
 	#include <GL/gl.h>
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
-	/*	I can't test this Apple stuff!	*/
-	#include <OpenGL/gl.h>
 	#include <Carbon/Carbon.h>
-	#define APIENTRY
+    #include <glad/glad.h>
 #else
 	#include <glad/glad.h>
 #endif
