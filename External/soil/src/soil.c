@@ -19,7 +19,7 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#include <wingdi.h>
-	#include <GL/gl.h>
+	#include <glad/glad.h>
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	#include <Carbon/Carbon.h>
     #include <glad/glad.h>
