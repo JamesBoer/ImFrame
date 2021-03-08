@@ -24,7 +24,7 @@ set(
 	"SetUiFont.cpp"
 	"SetUiFont.h"
 )
-add_executable(Features WIN32 ${source_list})
+add_executable(Features WIN32 MACOSX_BUNDLE ${source_list})
 target_link_libraries(Features PRIVATE ImFrame)
 
 # Set compiler options
