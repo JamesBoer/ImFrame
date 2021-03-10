@@ -41,6 +41,20 @@ THE SOFTWARE.
 
 namespace ImFrame
 {
-	std::string GetOsConfigFolder();
-	std::string GetOsExecutableFolder();
+	std::string OsGetConfigFolder();
+	std::string OsGetExecutableFolder();
+
+    void OsInitialize();
+    void OsShutDown();
+
+#ifdef IMFRAME_MACOS
+    bool OsBeginMainMenuBar();
+    void OsEndMainMenuBar();
+    bool OsBeginMenu(const char * label, bool enabled);
+    void OsEndMenu();
+    bool OsMenuItem(const char * label, const char * shortcut, bool selected, bool enabled);
+    bool OsMenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled);
+    void OsSeparator();
+#endif
+
 }

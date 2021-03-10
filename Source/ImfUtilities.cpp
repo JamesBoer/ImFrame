@@ -34,7 +34,7 @@ namespace ImFrame
 		assert(!appName.empty());
 		using namespace std;
 		namespace fs = std::filesystem;
-		fs::path p = GetOsConfigFolder();
+		fs::path p = OsGetConfigFolder();
 		p.append(companyName);
 		p.append(appName);
 		if (!fs::exists(p))
@@ -45,7 +45,7 @@ namespace ImFrame
 	std::filesystem::path GetExecutableFolder()
 	{
 		namespace fs = std::filesystem;
-		fs::path p = GetOsExecutableFolder();
+		fs::path p = OsGetExecutableFolder();
 		p.remove_filename();
 		return p;
 	}

@@ -314,6 +314,16 @@ namespace ImFrame
 		}
 	}
 
+    void SetBackgroundColor(std::array<float, 3> color)
+    {
+        s_backgroundColor = color;
+    }
+
+    std::array<float, 3> GetBackgroundColor()
+    {
+        return s_backgroundColor;
+    }
+
 	bool IsCustomFontEnabled()
 	{
 		return s_fontEnabled;
@@ -356,15 +366,68 @@ namespace ImFrame
 		}
 	}
 
-	void SetBackgroundColor(std::array<float, 3> color)
-	{
-		s_backgroundColor = color;
-	}
+    bool BeginMainMenuBar()
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        return OsBeginMainMenuBar();
+#else
+        return ImGui::BeginMainMenuBar();
+#endif
+    }
 
-	std::array<float, 3> GetBackgroundColor()
-	{
-		return s_backgroundColor;
-	}
+    void EndMainMenuBar()
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        OsEndMainMenuBar();
+#else
+        ImGui::EndMainMenuBar();
+#endif
+    }
+
+    bool BeginMenu(const char * label, bool enabled)
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        return OsBeginMenu(label, enabled);
+#else
+        return ImGui::BeginMenu(label, enabled);
+#endif
+    }
+
+    void EndMenu()
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        OsEndMenu();
+#else
+        ImGui::EndMenu();
+#endif
+    }
+
+    bool MenuItem(const char * label, const char * shortcut, bool selected, bool enabled)
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        return OsMenuItem(label, shortcut, selected, enabled);
+#else
+        return ImGui::MenuItem(label, shortcut, selected, enabled);
+#endif
+    }
+
+    bool MenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled)
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        return OsMenuItem(label, shortcut, p_selected, enabled);
+#else
+        return ImGui::MenuItem(label, shortcut, p_selected, enabled);
+#endif
+    }
+
+    void Separator()
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        OsSeparator();
+#else
+        ImGui::Separator();
+#endif
+    }
 
     int Run(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
@@ -413,6 +476,9 @@ namespace ImFrame
 		// Initialize glad GL functions
 		gladLoadGL();
 
+        // Initialize any OS-specific functionality
+        OsInitialize();
+
 		// Initialize ImGui
 		ImGui::CreateContext();
 		ImGuiIO & io = ImGui::GetIO();
@@ -428,7 +494,7 @@ namespace ImFrame
 
 		// Initialize ImPlot
 		ImPlot::CreateContext();
-
+        
 		// Create user-defined app
 		s_appPtr = createAppFn(window);
 
@@ -442,9 +508,6 @@ namespace ImFrame
 			glfwSetWindowIcon(window, 1, icons);
 			SOIL_free_image_data(icons[0].pixels);
 		}
-
-		[[maybe_unused]]
-		auto path = GetExecutableFolder();
 
 		// Main application loop
 		while (!glfwWindowShouldClose(window))
@@ -493,10 +556,13 @@ namespace ImFrame
 				ImGui::RenderPlatformWindowsDefault();
 				glfwMakeContextCurrent(backup_current_context);
 			}
-
+            
 			// Present buffer
 			glfwSwapBuffers(window);
 		}
+        
+        // OS-specific shutdown
+        OsShutDown();
 
 		// Delete application
 		s_appPtr = nullptr;
