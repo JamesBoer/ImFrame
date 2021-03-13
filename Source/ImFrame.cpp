@@ -49,7 +49,7 @@ namespace ImFrame
 		// Persistent app data
 
 		struct PersistentData
-		{
+		{ 
 			// Window data
 			int windowWidth = 800;
 			int windowHeight = 600;
@@ -63,10 +63,10 @@ namespace ImFrame
 			FontType fontType = FontType::RobotoRegular;
 			float fontSize = 15.0f;
 
-			// Settings data for internal ImFrame data
+			// Settings for internal ImFrame data
 			mINI::INIStructure imframeIni;
 
-			// Settings data for application data
+			// Settings for application data
 			mINI::INIStructure appIni;
 
 			ImAppPtr appPtr;
