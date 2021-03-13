@@ -37,7 +37,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 int main(int, char **)
 #endif
 {
-	return ImFrame::RunImFrame("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
+	return ImFrame::Run("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
 }
 
 

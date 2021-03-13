@@ -40,49 +40,61 @@ void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[m
 
 void MainApp::OnUpdate()
 {
-	if (ImGui::BeginMainMenuBar())
+	if (ImFrame::BeginMainMenuBar())
 	{
-		if (ImGui::BeginMenu("File"))
+		if (ImFrame::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Open...", nullptr, &m_fileOpen))
+			if (ImFrame::MenuItem("Open...##Test", "O"))
 			{
 				auto path = ImFrame::OpenFilesDialog("png,jpg", nullptr);
-				m_fileOpen = false;
 				if (path)
 				{
 					//printf("%s", path.value().c_str());
 				}
 			}
-			if (ImGui::MenuItem("Save As...", nullptr, &m_fileSaveAs))
+			if (ImFrame::MenuItem("Save As...", "S"))
 			{
 				auto path = ImFrame::SaveFileDialog("png,jpg", "TestFile.jpg");
-				m_fileSaveAs = false;
 				if (path)
 				{
 					//printf("%s", path.value().c_str());
 				}
 			}
-			if (ImGui::MenuItem("Pick Folder...", nullptr, &m_pickFolder))
+            ImFrame::Separator();
+			if (ImFrame::MenuItem("Pick Folder...", nullptr))
 			{
 				auto path = ImFrame::PickFolderDialog(nullptr);
-				m_pickFolder = false;
 				if (path)
 				{
 					//printf("%s", path.value().c_str());
 				}
 			}
-			ImGui::EndMenu();
+            ImFrame::EndMenu();
 		}
-		if (ImGui::BeginMenu("View"))
+		if (ImFrame::BeginMenu("View"))
 		{
-			ImGui::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
-			ImGui::MenuItem("Show ImGui Demo", nullptr, &m_showImGuiDemo);
-			ImGui::MenuItem("Show ImPlot Demo", nullptr, &m_showImPlotDemo);
-			ImGui::MenuItem("Set Background Color...", nullptr, &m_setBgColor);
-			ImGui::MenuItem("Set UI Font...", nullptr, &m_setUiFont);
-			ImGui::EndMenu();
+            ImFrame::MenuItem("Show Extra Menu", nullptr, &m_showExtraMenu);
+            ImFrame::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
+            ImFrame::MenuItem("Show ImGui Demo", nullptr, &m_showImGuiDemo);
+            ImFrame::MenuItem("Show ImPlot Demo", nullptr, &m_showImPlotDemo);
+            ImFrame::Separator();
+            ImFrame::MenuItem("Set Background Color...", nullptr, &m_setBgColor);
+            ImFrame::MenuItem("Set UI Font...", nullptr, &m_setUiFont);
+            ImFrame::EndMenu();
 		}
-		ImGui::EndMainMenuBar();
+        if (m_showExtraMenu && ImFrame::BeginMenu("Extra"))
+        {
+            ImFrame::MenuItem("Something extra!", nullptr);
+            if (ImFrame::BeginMenu("Sub menu"))
+            {
+                ImFrame::MenuItem("One", nullptr);
+                ImFrame::MenuItem("Two", nullptr);
+                ImFrame::MenuItem("Three", nullptr);
+                ImFrame::EndMenu();
+            }
+            ImFrame::EndMenu();
+        }
+        ImFrame::EndMainMenuBar();
 	}
 
 	if (m_showGlDemo)

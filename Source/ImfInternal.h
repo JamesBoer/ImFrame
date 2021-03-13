@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include <mini/ini.h>
 #include <nfd.h>
+#include <SOIL/SOIL.h>
 
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
@@ -40,5 +41,20 @@ THE SOFTWARE.
 
 namespace ImFrame
 {
-	std::string GetOsConfigFolder();
+	std::string OsGetConfigFolder();
+	std::string OsGetExecutableFolder();
+
+    void OsInitialize();
+    void OsShutDown();
+
+#ifdef IMFRAME_MACOS
+    bool OsBeginMainMenuBar();
+    void OsEndMainMenuBar();
+    bool OsBeginMenu(const char * label, bool enabled);
+    void OsEndMenu();
+    bool OsMenuItem(const char * label, const char * shortcut, bool selected, bool enabled);
+    bool OsMenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled);
+    void OsSeparator();
+#endif
+
 }

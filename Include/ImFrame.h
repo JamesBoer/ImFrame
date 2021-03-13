@@ -35,6 +35,7 @@ THE SOFTWARE.
 #endif
 #if defined(__APPLE__) && defined(__MACH__)
 #define IMFRAME_MACOS
+#define IMFRAME_MACOS_MENUS
 #endif
 
 // Enable memory leak detection in Windows debug builds
@@ -139,10 +140,19 @@ namespace ImFrame
 	float GetCustomFontSize();
 	void SetCustomFontSize(float pixelSize);
 
+    // ImGui / macOS native menu wrappers
+    bool BeginMainMenuBar();
+    void EndMainMenuBar();
+    bool BeginMenu(const char * label, bool enabled = true);
+    void EndMenu();
+    bool MenuItem(const char * label, const char * shortcut, bool selected = false, bool enabled = true);
+    bool MenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled = true);
+    void Separator();
+
 	// Application function callback signature
 	using ImAppCreateFn = std::function<ImAppPtr(GLFWwindow * window)>;
 
 	// Call from main() to run ImFrame framework
-    int RunImFrame(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn);
+    int Run(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn);
 
 }

@@ -35,12 +35,10 @@ namespace Features
 
 	private:
 
-		bool m_fileOpen = false;
-		bool m_fileSaveAs = false;
-		bool m_pickFolder = false;
+        bool m_showExtraMenu = false;
+        bool m_showGlDemo = true;
 		bool m_showImGuiDemo = true;
 		bool m_showImPlotDemo = true;
-		bool m_showGlDemo = true;
 		bool m_setBgColor = false;
 		bool m_setUiFont = false;
 	};

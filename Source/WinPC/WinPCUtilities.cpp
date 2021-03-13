@@ -59,7 +59,7 @@ namespace ImFrame
 
 	}
 
-	std::string GetOsConfigFolder()
+	std::string OsGetConfigFolder()
 	{
 		PWSTR pszPath = NULL;
 		HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, NULL, NULL, &pszPath);
@@ -73,5 +73,22 @@ namespace ImFrame
 		CoTaskMemFree(pszPath);
 		return rootFolder;
 	}
+
+	std::string OsGetExecutableFolder()
+	{
+		WCHAR buffer[1024];
+		DWORD size = GetModuleFileNameW(NULL, buffer, static_cast<DWORD>(std::size(buffer)));
+		if (size == 0)
+			return std::string();
+		return utf8_encode(buffer);
+	}
+
+    void OsInitialize()
+    {
+    }
+
+    void OsShutDown()
+    {
+    }
 
 }

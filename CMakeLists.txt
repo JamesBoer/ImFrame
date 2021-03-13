@@ -32,6 +32,7 @@ add_subdirectory("External/glfw")
 add_subdirectory("External/Imgui")
 add_subdirectory("External/Implot")
 add_subdirectory("External/nativefiledialog")
+add_subdirectory("External/soil")
 add_custom_target(linmath SOURCES "External/linmath/linmath.h")
 add_custom_target(mINI SOURCES "External/mINI/src/mini/ini.h")
 
@@ -43,6 +44,7 @@ set_property(TARGET Implot PROPERTY FOLDER "External")
 set_property(TARGET nativefiledialog PROPERTY FOLDER "External")
 set_property(TARGET linmath PROPERTY FOLDER "External")
 set_property(TARGET mINI PROPERTY FOLDER "External")
+set_property(TARGET soil PROPERTY FOLDER "External")
 
 # Add source files and dependencies to library
 set(
@@ -63,28 +65,14 @@ set(
 	"Source/ImGui/imgui_impl_opengl3.h"
 )
 if(WIN32)
-	list(
-		APPEND
-		source_list
-		"Source/WinPC/WinPCUtilities.cpp"
-	)
-endif()
-if(APPLE)
-	list(
-		APPEND
-		source_list
-		"Source/macOS/macOSUtilities.mm"
-	)
-endif()
-if(UNIX AND NOT APPLE)
-	list(
-		APPEND
-		source_list
-		"Source/Linux/LinuxUtilities.cpp"
-	)
+	list(APPEND source_list "Source/WinPC/WinPCUtilities.cpp")
+elseif(APPLE)
+	list(APPEND source_list "Source/macOS/macOSUtilities.mm")
+elseif(UNIX AND NOT APPLE)
+	list(APPEND source_list "Source/Linux/LinuxUtilities.cpp")
 endif()
 add_library(ImFrame ${source_list})
-target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nativefiledialog)
+target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nativefiledialog soil)
 
 # Set compiler options
 if(MSVC)
@@ -101,9 +89,10 @@ target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Imgui"
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/Implot")
 target_include_directories(ImFrame PUBLIC "${PROJECT_SOURCE_DIR}/External/linmath")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
-target_include_directories(nativefiledialog PRIVATE "${PROJECT_SOURCE_DIR}/External/nativefiledialog/src/include")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
+target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/soil/include")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
+target_include_directories(soil PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
 
 # Create folder structure
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})

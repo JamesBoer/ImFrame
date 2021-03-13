@@ -31,7 +31,7 @@ THE SOFTWARE.
 namespace ImFrame
 {
 
-	std::string GetOsConfigFolder()
+	std::string OsGetConfigFolder()
 	{
 		char * rootDir = getenv("XDG_CONFIG_HOME");
 		std::string folder;
@@ -49,5 +49,23 @@ namespace ImFrame
 		}	
 		return folder;
 	}
+
+	std::string OsGetExecutableFolder()
+	{
+		/*
+		char result[PATH_MAX];
+		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+		return std::string(result, (count > 0) ? count : 0);
+		*/
+		return std::string();
+	}
+
+    void OsInitialize()
+    {
+    }
+
+    void OsShutDown()
+    {
+    }
 
 }
