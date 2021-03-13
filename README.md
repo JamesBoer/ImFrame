@@ -9,7 +9,7 @@ Dear ImGui and ImPlot (an add-on graph rendering library) are also part of the f
 ImFrame is still in early development, so feedback and bug reports are appreciated.
 
 *Windows Demo*
-![Table Image](Data/Screenshots/Demo-Win.png)
+![Table Image](Data/Screenshots/Demo-Win.PNG)
 
 *Mac Demo*
 ![Table Image](Data/Screenshots/Demo-Mac.png)
