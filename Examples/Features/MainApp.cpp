@@ -30,6 +30,18 @@ MainApp::MainApp(GLFWwindow * window) :
 	ImFrame::ImApp(window)
 {
 	InitGlDemo();
+	m_showExtraMenu = ImFrame::GetConfigValue("show", "extramenu", m_showExtraMenu);
+	m_showGlDemo = ImFrame::GetConfigValue("show", "gldemo", m_showGlDemo);
+	m_showImGuiDemo = ImFrame::GetConfigValue("show", "imguidemo", m_showImGuiDemo);
+	m_showImPlotDemo = ImFrame::GetConfigValue("show", "implotdemo", m_showImPlotDemo);
+}
+
+MainApp::~MainApp()
+{
+	ImFrame::SetConfigValue("show", "extramenu", m_showExtraMenu);
+	ImFrame::SetConfigValue("show", "gldemo", m_showGlDemo);
+	ImFrame::SetConfigValue("show", "imguidemo", m_showImGuiDemo);
+	ImFrame::SetConfigValue("show", "implotdemo", m_showImPlotDemo);
 }
 
 void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)

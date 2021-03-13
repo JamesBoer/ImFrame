@@ -30,6 +30,7 @@ namespace Features
 	{
 	public:
 		MainApp(GLFWwindow * window);
+		virtual ~MainApp();
 		void OnUpdate() override;
 		void OnKeyEvent(int key, int scancode, int action, int mods) override;
 

@@ -140,6 +140,18 @@ namespace ImFrame
 	float GetCustomFontSize();
 	void SetCustomFontSize(float pixelSize);
 
+	// Persistent settings
+	std::string GetConfigValue(const char * sectionName, const char * valueName, const std::string & defaultValue);
+	float GetConfigValue(const char * sectionName, const char * valueName, float defaultValue);
+	double GetConfigValue(const char * sectionName, const char * valueName, double defaultValue);
+	int GetConfigValue(const char * sectionName, const char * valueName, int defaultValue);
+	bool GetConfigValue(const char * sectionName, const char * valueName, bool defaultValue);
+	void SetConfigValue(const char * sectionName, const char * valueName, const std::string & value);
+	void SetConfigValue(const char * sectionName, const char * valueName, float value);
+	void SetConfigValue(const char * sectionName, const char * valueName, double value);
+	void SetConfigValue(const char * sectionName, const char * valueName, int value);
+	void SetConfigValue(const char * sectionName, const char * valueName, bool value);
+
     // ImGui / macOS native menu wrappers
     bool BeginMainMenuBar();
     void EndMainMenuBar();
