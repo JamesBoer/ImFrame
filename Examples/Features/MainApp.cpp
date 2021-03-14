@@ -58,7 +58,7 @@ void MainApp::OnUpdate()
 		{
 			if (ImFrame::MenuItem("Open...##Test", "O"))
 			{
-				auto path = ImFrame::OpenFilesDialog("png,jpg", nullptr);
+				auto path = ImFrame::OpenFilesDialog({ {"Image files", "png,jpg" } }, nullptr);
 				if (path)
 				{
 					//printf("%s", path.value().c_str());
@@ -66,7 +66,7 @@ void MainApp::OnUpdate()
 			}
 			if (ImFrame::MenuItem("Save As...", "S"))
 			{
-				auto path = ImFrame::SaveFileDialog("png,jpg", "TestFile.jpg");
+				auto path = ImFrame::SaveFileDialog({ {"Image files", "png,jpg" } }, nullptr, "TestFile.jpg");
 				if (path)
 				{
 					//printf("%s", path.value().c_str());

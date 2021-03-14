@@ -276,14 +276,16 @@ namespace ImFrame
 		return buffer;
 	}
 
-	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath)
+	std::optional<std::filesystem::path> OpenFileDialog(const std::vector<Filter> & filters, const char * defaultPath)
 	{
-		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_OpenDialog(filters, defaultPath, &outPath);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::OpenDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
-			std::string outStr = outPath;
-			free(outPath);
+			std::string outStr = outPath.get();
 			return outStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -292,24 +294,30 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
 
-	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath)
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const std::vector<Filter> & filters, const char * defaultPath)
 	{
-		nfdpathset_t pathSet;
-		nfdresult_t result = NFD_OpenDialogMultiple(filters, defaultPath, &pathSet);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePathSet outPaths;
+		nfdresult_t result = NFD::OpenDialogMultiple(outPaths, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
 			std::vector<std::filesystem::path> paths;
-			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); ++i)
+			nfdpathsetsize_t numPaths;
+			NFD::PathSet::Count(outPaths, numPaths);
+			for (nfdfiltersize_t i = 0; i < numPaths; ++i)
 			{
-				std::string path = NFD_PathSet_GetPath(&pathSet, i);
-				paths.emplace_back(path);
+				NFD::UniquePathSetPath path;
+				NFD::PathSet::GetPath(outPaths, i, path);
+				std::string pathStr = path.get();
+				paths.emplace_back(pathStr);
 			}
-			NFD_PathSet_Free(&pathSet);
 			return paths;
 		}
 		else if (result == NFD_CANCEL)
@@ -318,19 +326,21 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::vector<std::filesystem::path>>();
 		}
 	}
 
-	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath)
+	std::optional<std::filesystem::path> SaveFileDialog(const std::vector<Filter> & filters, const char * defaultPath, const char * defaultFileName)
 	{
-		nfdchar_t * savePath = NULL;
-		nfdresult_t result = NFD_SaveDialog(filters, defaultPath, &savePath);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::SaveDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath, defaultFileName);
 		if (result == NFD_OKAY)
 		{
-			std::string saveStr = savePath;
-			free(savePath);
+			std::string saveStr = outPath.get();
 			return saveStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -339,19 +349,18 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
 
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
 	{
-		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_PickFolder(defaultPath, &outPath);
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::PickFolder(outPath, defaultPath);
 		if (result == NFD_OKAY)
 		{
-			std::string folderStr = outPath;
-			free(outPath);
+			std::string folderStr = outPath.get();
 			return folderStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -360,7 +369,7 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
@@ -534,6 +543,9 @@ namespace ImFrame
     int Run(const std::string & orgName, const std::string & appName, ImAppCreateFn createAppFn)
     {
 		namespace fs = std::filesystem;
+
+		// Initialize native file dialog lib
+		NFD::Guard nfdGuard;
 
 		// Allocate all persistent internal window/app data
 		s_data = std::make_unique<PersistentData>();

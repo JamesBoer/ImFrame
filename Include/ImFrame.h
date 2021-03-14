@@ -114,10 +114,15 @@ namespace ImFrame
 
 
 	// Native file and folder dialog functions
-	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath);
-	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath);
-	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath);
-	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath);
+	struct Filter
+	{
+		std::string name;
+		std::string spec;
+	};
+	std::optional<std::filesystem::path> OpenFileDialog(const std::vector<Filter> & filters, const char * defaultPath = nullptr);
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const std::vector<Filter> & filters, const char * defaultPath = nullptr);
+	std::optional<std::filesystem::path> SaveFileDialog(const std::vector<Filter> & filters, const char * defaultPath = nullptr, const char * defaultFileName = nullptr);
+	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath = nullptr);
 
 	// Window
 	void SetBackgroundColor(std::array<float, 3> color);
