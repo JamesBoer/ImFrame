@@ -32,9 +32,9 @@ add_subdirectory("External/glfw")
 add_subdirectory("External/Imgui")
 add_subdirectory("External/Implot")
 add_subdirectory("External/nativefiledialog-extended")
-add_subdirectory("External/soil")
 add_custom_target(linmath SOURCES "External/linmath/linmath.h")
 add_custom_target(mINI SOURCES "External/mINI/src/mini/ini.h")
+add_custom_target(stb SOURCES "External/stb/stb_image.h")
 
 # Indicate that we should place these in the External project folder
 set_property(TARGET glad PROPERTY FOLDER "External")
@@ -44,7 +44,7 @@ set_property(TARGET Implot PROPERTY FOLDER "External")
 set_property(TARGET nfd PROPERTY FOLDER "External")
 set_property(TARGET linmath PROPERTY FOLDER "External")
 set_property(TARGET mINI PROPERTY FOLDER "External")
-set_property(TARGET soil PROPERTY FOLDER "External")
+set_property(TARGET stb PROPERTY FOLDER "External")
 
 # Add source files and dependencies to library
 set(
@@ -72,7 +72,7 @@ elseif(UNIX AND NOT APPLE)
 	list(APPEND source_list "Source/Linux/LinuxUtilities.cpp")
 endif()
 add_library(ImFrame ${source_list})
-target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nfd soil)
+target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nfd)
 
 # Set compiler options
 if(MSVC)
@@ -92,7 +92,7 @@ target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/nativ
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/src")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/soil/include")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
-target_include_directories(soil PRIVATE "${PROJECT_SOURCE_DIR}/External/glad/include")
+target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/stb")
 
 # Create folder structure
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})

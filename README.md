@@ -11,7 +11,7 @@ ImFrame a number of handy third-party libraries.  Some of these are hidden behin
 * [ImPlot](https://github.com/epezent/implot) is a comprehensive plotting library extension for Dear ImGui.  It uses the MIT license.
 * [mINI](https://github.com/pulzed/mINI) is an ini file reader / writer.  It uses the MIT license.
 * [linmath](https://github.com/datenwolf/linmath.h) is a header-only C-based linear math library for computer graphics.  It uses the WTFPL license.
-* [soil](https://github.com/littlstar/soil) is a library used for loading images into OpenGL.  It uses the MIT license.
+* [stb_image](https://github.com/nothings/stb) is a library used for loading images.  It uses the MIT license or is public domain.
 
 ImFrame is still in early development, so feedback and bug reports are appreciated.
 

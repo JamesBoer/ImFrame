@@ -128,6 +128,15 @@ namespace ImFrame
 	void SetBackgroundColor(std::array<float, 3> color);
 	std::array<float, 3> GetBackgroundColor();
 
+	// Images / Textures
+	struct TextureInfo
+	{
+		GLuint textureID{};
+		int width{};
+		int height{};
+	};
+	std::optional<TextureInfo> LoadTextureFromFile(const char * filename);
+
 	// UI Fonts
 	enum class FontType
 	{

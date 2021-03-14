@@ -42,6 +42,9 @@ MainApp::~MainApp()
 	ImFrame::SetConfigValue("show", "gldemo", m_showGlDemo);
 	ImFrame::SetConfigValue("show", "imguidemo", m_showImGuiDemo);
 	ImFrame::SetConfigValue("show", "implotdemo", m_showImPlotDemo);
+	if (m_texture.textureID)
+		glDeleteTextures(1, &m_texture.textureID);
+
 }
 
 void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
@@ -58,10 +61,17 @@ void MainApp::OnUpdate()
 		{
 			if (ImFrame::MenuItem("Open...##Test", "O"))
 			{
-				auto path = ImFrame::OpenFilesDialog({ {"Image files", "png,jpg" } }, nullptr);
+				auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
 				if (path)
 				{
-					//printf("%s", path.value().c_str());
+					auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
+					if (ret)
+					{
+						if (m_texture.textureID)
+							glDeleteTextures(1, &m_texture.textureID);
+						m_texture = ret.value();
+						m_showTexture = true;
+					}
 				}
 			}
 			if (ImFrame::MenuItem("Save As...", "S"))
@@ -69,7 +79,6 @@ void MainApp::OnUpdate()
 				auto path = ImFrame::SaveFileDialog({ {"Image files", "png,jpg" } }, nullptr, "TestFile.jpg");
 				if (path)
 				{
-					//printf("%s", path.value().c_str());
 				}
 			}
             ImFrame::Separator();
@@ -78,7 +87,6 @@ void MainApp::OnUpdate()
 				auto path = ImFrame::PickFolderDialog(nullptr);
 				if (path)
 				{
-					//printf("%s", path.value().c_str());
 				}
 			}
 #ifndef IMFRAME_MACOS
@@ -126,4 +134,14 @@ void MainApp::OnUpdate()
 		SetBgColor(&m_setBgColor);
 	if (m_setUiFont)
 		SetUiFont(&m_setUiFont);
+	if (m_showTexture)
+	{
+		if (ImGui::Begin("OpenGL Texture Text", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
+		{
+			ImGui::Text("pointer = %p", m_texture.textureID);
+			ImGui::Text("size = %d x %d", m_texture.width, m_texture.height);
+			ImGui::Image((void *)(intptr_t)m_texture.textureID, ImVec2((float)m_texture.width, (float)m_texture.height));
+		}
+		ImGui::End();
+	}
 }
