@@ -10,16 +10,12 @@ elseif(UNIX AND NOT APPLE)
   set(nfd_PLATFORM PLATFORM_LINUX)
 endif()
 
-message("nfd Platform: ${nfd_PLATFORM}")
-
 set(nfd_COMPILER Undefined)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(nfd_COMPILER COMPILER_MSVC)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   set(nfd_COMPILER COMPILER_GNU)
 endif()
-
-message("nfd Compiler: ${nfd_COMPILER}")
 
 set (CMAKE_CXX_STANDARD 17)
 

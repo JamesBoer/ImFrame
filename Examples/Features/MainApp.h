@@ -42,5 +42,7 @@ namespace Features
 		bool m_showImPlotDemo = false;
 		bool m_setBgColor = false;
 		bool m_setUiFont = false;
+		ImFrame::TextureInfo m_texture;
+		bool m_showTexture = false;
 	};
 }
