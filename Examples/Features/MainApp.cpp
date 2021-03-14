@@ -138,7 +138,7 @@ void MainApp::OnUpdate()
 	{
 		if (ImGui::Begin("OpenGL Texture Text", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
 		{
-			ImGui::Text("pointer = %p", m_texture.textureID);
+			ImGui::Text("pointer = %p", reinterpret_cast<void *>(m_texture.textureID));
 			ImGui::Text("size = %d x %d", m_texture.width, m_texture.height);
 			ImGui::Image((void *)(intptr_t)m_texture.textureID, ImVec2((float)m_texture.width, (float)m_texture.height));
 		}
