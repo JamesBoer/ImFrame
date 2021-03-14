@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include <cassert>
 
 #include <mini/ini.h>
-#include <nfd.h>
+#include <nfd.hpp>
 #include <SOIL/SOIL.h>
 
 #include "ImGui/imgui_impl_glfw.h"

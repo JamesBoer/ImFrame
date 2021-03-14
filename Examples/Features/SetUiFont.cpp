@@ -57,7 +57,7 @@ namespace Features
 			}
 			ImU8 fontSize = static_cast<ImU8>(ImFrame::GetCustomFontSize());
 			const ImU8 one = 1;
-			if (ImGui::InputScalar("input u8", ImGuiDataType_U8, &fontSize, &one, NULL, "%u"))
+			if (ImGui::InputScalar("Font Size", ImGuiDataType_U8, &fontSize, &one, NULL, "%u"))
 			{
 				fontSize = std::clamp<ImU8>(fontSize, 10, 24);
 				ImFrame::SetCustomFontSize(static_cast<float>(fontSize));

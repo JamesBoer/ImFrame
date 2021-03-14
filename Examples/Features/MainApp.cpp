@@ -30,6 +30,18 @@ MainApp::MainApp(GLFWwindow * window) :
 	ImFrame::ImApp(window)
 {
 	InitGlDemo();
+	m_showExtraMenu = ImFrame::GetConfigValue("show", "extramenu", m_showExtraMenu);
+	m_showGlDemo = ImFrame::GetConfigValue("show", "gldemo", m_showGlDemo);
+	m_showImGuiDemo = ImFrame::GetConfigValue("show", "imguidemo", m_showImGuiDemo);
+	m_showImPlotDemo = ImFrame::GetConfigValue("show", "implotdemo", m_showImPlotDemo);
+}
+
+MainApp::~MainApp()
+{
+	ImFrame::SetConfigValue("show", "extramenu", m_showExtraMenu);
+	ImFrame::SetConfigValue("show", "gldemo", m_showGlDemo);
+	ImFrame::SetConfigValue("show", "imguidemo", m_showImGuiDemo);
+	ImFrame::SetConfigValue("show", "implotdemo", m_showImPlotDemo);
 }
 
 void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
@@ -46,7 +58,7 @@ void MainApp::OnUpdate()
 		{
 			if (ImFrame::MenuItem("Open...##Test", "O"))
 			{
-				auto path = ImFrame::OpenFilesDialog("png,jpg", nullptr);
+				auto path = ImFrame::OpenFilesDialog({ {"Image files", "png,jpg" } }, nullptr);
 				if (path)
 				{
 					//printf("%s", path.value().c_str());
@@ -54,7 +66,7 @@ void MainApp::OnUpdate()
 			}
 			if (ImFrame::MenuItem("Save As...", "S"))
 			{
-				auto path = ImFrame::SaveFileDialog("png,jpg", "TestFile.jpg");
+				auto path = ImFrame::SaveFileDialog({ {"Image files", "png,jpg" } }, nullptr, "TestFile.jpg");
 				if (path)
 				{
 					//printf("%s", path.value().c_str());

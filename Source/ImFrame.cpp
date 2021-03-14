@@ -35,25 +35,50 @@ namespace ImFrame
 	namespace
 	{
 
+		// Register OnExit() as early as possible
+		void OnExit();
+		struct StaticInitializer
+		{
+			StaticInitializer()
+			{
+				// Signal this function to execute on exit
+				atexit(OnExit);
+			}
+		};
+
 		// Persistent app data
 
-		// Window data
-		int s_windowWidth = 800;
-		int s_windowHeight = 600;
-		int s_windowPosX = 100;
-		int s_windowPosY = 100;
-		bool s_windowMaximized = false;
-		std::array<float, 3> s_backgroundColor = { 0.08f, 0.08f, 0.08f };
+		struct PersistentData
+		{ 
+			// Window data
+			int windowWidth = 800;
+			int windowHeight = 600;
+			int windowPosX = 100;
+			int windowPosY = 100;
+			bool windowMaximized = false;
+			std::array<float, 3> backgroundColor = { 0.08f, 0.08f, 0.08f };
 
-		// ImGui settings
-		bool s_fontEnabled = true;
-		FontType s_fontType = FontType::RobotoRegular;
-		float s_fontSize = 15.0f;
+			// ImGui settings
+			bool fontEnabled = true;
+			FontType fontType = FontType::RobotoRegular;
+			float fontSize = 15.0f;
 
-		ImAppPtr s_appPtr;
+			// Settings for internal ImFrame data
+			mINI::INIStructure imframeIni;
 
-		bool s_fontChanged = true;
-		ImFont * s_customFont;
+			// Settings for application data
+			mINI::INIStructure appIni;
+
+			ImAppPtr appPtr;
+
+			bool fontChanged = true;
+			ImFont * customFont = nullptr;
+		};
+
+
+		StaticInitializer s_initializer;
+		std::unique_ptr<PersistentData> s_data;
+
 
 		void ErrorCallback([[maybe_unused]] int error, const char * description)
 		{
@@ -62,62 +87,78 @@ namespace ImFrame
 
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
-			if (s_appPtr)
-				s_appPtr->OnKeyEvent(key, scancode, action, mods);
+			if (s_data->appPtr)
+				s_data->appPtr->OnKeyEvent(key, scancode, action, mods);
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)
 		{		
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
-				s_windowPosX = x;
-				s_windowPosY = y;
+				s_data->windowPosX = x;
+				s_data->windowPosY = y;
 			}
-			if (s_appPtr)
-				s_appPtr->OnWindowPositionChange(x, y);
+			if (s_data->appPtr)
+				s_data->appPtr->OnWindowPositionChange(x, y);
 		}
 
 		void WindowSizeCallback(GLFWwindow * window, int width, int height)
 		{
 			if (!glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
 			{
-				s_windowWidth = width;
-				s_windowHeight = height;
+				s_data->windowWidth = width;
+				s_data->windowHeight = height;
 			}
-			if (s_appPtr)
-				s_appPtr->OnWindowSizeChange(width, height);
+			if (s_data->appPtr)
+				s_data->appPtr->OnWindowSizeChange(width, height);
 		}
 
 		void WindowMaximizeCallback([[maybe_unused]] GLFWwindow * window, int maximized)
 		{
-			s_windowMaximized = maximized ? true : false;
-			if (s_appPtr)
-				s_appPtr->OnWindowMaximize(s_windowMaximized);
+			s_data->windowMaximized = maximized ? true : false;
+			if (s_data->appPtr)
+				s_data->appPtr->OnWindowMaximize(s_data->windowMaximized);
 		}
 
 		void WindowMouseButtonCallback([[maybe_unused]] GLFWwindow * window, int button, int action, int mods)
 		{
-			if (s_appPtr)
-				s_appPtr->OnMouseButtonEvent(button, action, mods);
+			if (s_data->appPtr)
+				s_data->appPtr->OnMouseButtonEvent(button, action, mods);
 		}
 
 		void WindowCursorPositionCallback([[maybe_unused]] GLFWwindow * window, double x, double y)
 		{
-			if (s_appPtr)
-				s_appPtr->OnCursorPosition(x, y);
+			if (s_data->appPtr)
+				s_data->appPtr->OnCursorPosition(x, y);
+		}
+
+		std::string GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, const std::string & defaultValue)
+		{
+			const auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return s;
 		}
 
 		float GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, float defaultValue)
 		{
-			auto & s = ini[sectionName][valueName];
+			const auto & s = ini[sectionName][valueName];
 			if (s.empty())
 				return defaultValue;
 			return std::stof(s);
 		}
 
+		double GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, double defaultValue)
+		{
+			const auto & s = ini[sectionName][valueName];
+			if (s.empty())
+				return defaultValue;
+			return std::stod(s);
+		}
+
 		int GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, int defaultValue)
 		{
-			auto & s = ini[sectionName][valueName];
+			const auto & s = ini[sectionName][valueName];
 			if (s.empty())
 				return defaultValue;
 			return std::stoi(s);
@@ -125,50 +166,60 @@ namespace ImFrame
 
 		bool GetConfigValue(mINI::INIStructure & ini, const char * sectionName, const char * valueName, bool defaultValue)
 		{
-			auto & s = ini[sectionName][valueName];
+			const auto & s = ini[sectionName][valueName];
 			if (s.empty())
 				return defaultValue;
 			return std::stoi(s) == 0 ? false : true;
 		}
 
-		void GetConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
+		void GetConfig(mINI::INIStructure & ini, const std::string & fileName, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
-			configFolder.append("settings.ini");
+			configFolder.append(fileName);
 			mINI::INIFile file(configFolder.string());
 			file.read(ini);
-			s_windowWidth = GetConfigValue(ini, "window", "width", s_windowWidth);
-			s_windowHeight = GetConfigValue(ini, "window", "height", s_windowHeight);
-			s_windowPosX = GetConfigValue(ini, "window", "posx", s_windowPosX);
-			s_windowPosY = GetConfigValue(ini, "window", "posy", s_windowPosY);
-			s_windowMaximized = GetConfigValue(ini, "window", "maximized", s_windowMaximized);
-			s_backgroundColor[0] = GetConfigValue(ini, "window", "bgcolorr", s_backgroundColor[0]);
-			s_backgroundColor[1] = GetConfigValue(ini, "window", "bgcolorg", s_backgroundColor[1]);
-			s_backgroundColor[2] = GetConfigValue(ini, "window", "bgcolorb", s_backgroundColor[2]);
-			s_fontEnabled = GetConfigValue(ini, "font", "enabled", s_fontEnabled);
-			s_fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(s_fontType)));
-			s_fontSize = GetConfigValue(ini, "font", "size", s_fontSize);
 		}
 
-		void SaveConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
+		void GetImFrameConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
+		{
+			GetConfig(ini, "imframe.ini", orgName, appName);
+			s_data->windowWidth = GetConfigValue(ini, "window", "width", s_data->windowWidth);
+			s_data->windowHeight = GetConfigValue(ini, "window", "height", s_data->windowHeight);
+			s_data->windowPosX = GetConfigValue(ini, "window", "posx", s_data->windowPosX);
+			s_data->windowPosY = GetConfigValue(ini, "window", "posy", s_data->windowPosY);
+			s_data->windowMaximized = GetConfigValue(ini, "window", "maximized", s_data->windowMaximized);
+			s_data->backgroundColor[0] = GetConfigValue(ini, "window", "bgcolorr", s_data->backgroundColor[0]);
+			s_data->backgroundColor[1] = GetConfigValue(ini, "window", "bgcolorg", s_data->backgroundColor[1]);
+			s_data->backgroundColor[2] = GetConfigValue(ini, "window", "bgcolorb", s_data->backgroundColor[2]);
+			s_data->fontEnabled = GetConfigValue(ini, "font", "enabled", s_data->fontEnabled);
+			s_data->fontType = static_cast<ImFrame::FontType>(GetConfigValue(ini, "font", "type", static_cast<int>(s_data->fontType)));
+			s_data->fontSize = GetConfigValue(ini, "font", "size", s_data->fontSize);
+		}
+
+		void SaveConfig(mINI::INIStructure & ini, const std::string & fileName, const std::string & orgName, const std::string & appName)
 		{
 			namespace fs = std::filesystem;
 			fs::path configFolder = GetConfigFolder(orgName, appName);
-			configFolder.append("settings.ini");
+			configFolder.append(fileName);
 			mINI::INIFile file(configFolder.string());
-			ini["window"]["width"] = std::to_string(s_windowWidth);
-			ini["window"]["height"] = std::to_string(s_windowHeight);
-			ini["window"]["posx"] = std::to_string(s_windowPosX);
-			ini["window"]["posy"] = std::to_string(s_windowPosY);
-			ini["window"]["maximized"] = std::to_string(s_windowMaximized ? 1 : 0);
-			ini["window"]["bgcolorr"] = std::to_string(s_backgroundColor[0]);
-			ini["window"]["bgcolorg"] = std::to_string(s_backgroundColor[1]);
-			ini["window"]["bgcolorb"] = std::to_string(s_backgroundColor[2]);
-			ini["font"]["enabled"] = std::to_string(s_fontEnabled ? 1 : 0);
-			ini["font"]["type"] = std::to_string(static_cast<int>(s_fontType));
-			ini["font"]["size"] = std::to_string(s_fontSize);
 			file.write(ini);
+		}
+
+		void SaveImFrameConfig(mINI::INIStructure & ini, const std::string & orgName, const std::string & appName)
+		{
+			ini["window"]["width"] = std::to_string(s_data->windowWidth);
+			ini["window"]["height"] = std::to_string(s_data->windowHeight);
+			ini["window"]["posx"] = std::to_string(s_data->windowPosX);
+			ini["window"]["posy"] = std::to_string(s_data->windowPosY);
+			ini["window"]["maximized"] = std::to_string(s_data->windowMaximized ? 1 : 0);
+			ini["window"]["bgcolorr"] = std::to_string(s_data->backgroundColor[0]);
+			ini["window"]["bgcolorg"] = std::to_string(s_data->backgroundColor[1]);
+			ini["window"]["bgcolorb"] = std::to_string(s_data->backgroundColor[2]);
+			ini["font"]["enabled"] = std::to_string(s_data->fontEnabled ? 1 : 0);
+			ini["font"]["type"] = std::to_string(static_cast<int>(s_data->fontType));
+			ini["font"]["size"] = std::to_string(s_data->fontSize);
+			SaveConfig(ini, "imframe.ini", orgName, appName);
 		}
 
 		void OnExit()
@@ -183,38 +234,38 @@ namespace ImFrame
 
 		void UpdateCustomFont()
 		{
-			if (!s_fontChanged)
+			if (!s_data->fontChanged)
 				return;
-			if (s_fontEnabled)
+			if (s_data->fontEnabled)
 			{
 				ImGuiIO & io = ImGui::GetIO();
-				if (s_customFont)
+				if (s_data->customFont)
 					io.Fonts->Clear();
-				switch (s_fontType)
+				switch (s_data->fontType)
 				{
 					case FontType::CarlitoRegular:
-						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, s_fontSize);
+						s_data->customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&CarlitoRegular_compressed_data[0]), CarlitoRegular_compressed_size, s_data->fontSize);
 						break;
 					case FontType::OpenSansRegular:
-						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, s_fontSize);
+						s_data->customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansRegular_compressed_data[0]), OpenSansRegular_compressed_size, s_data->fontSize);
 						break;
 					case FontType::OpenSansSemiBold:
-						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, s_fontSize);
+						s_data->customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&OpenSansSemiBold_compressed_data[0]), OpenSansSemiBold_compressed_size, s_data->fontSize);
 						break;
 					case FontType::RobotoMedium:
-						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, s_fontSize);
+						s_data->customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoMedium_compressed_data[0]), RobotoMedium_compressed_size, s_data->fontSize);
 						break;
 					case FontType::RobotoRegular:
-						s_customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, s_fontSize);
+						s_data->customFont = io.Fonts->AddFontFromMemoryCompressedTTF((void *)(&RobotoRegular_compressed_data[0]), RobotoRegular_compressed_size, s_data->fontSize);
 						break;
 				}
 				ImGui_ImplOpenGL3_CreateFontsTexture();
 			}
 			else
 			{
-				s_customFont = nullptr;
+				s_data->customFont = nullptr;
 			}
-			s_fontChanged = false;
+			s_data->fontChanged = false;
 		}
 	}
 
@@ -225,14 +276,16 @@ namespace ImFrame
 		return buffer;
 	}
 
-	std::optional<std::filesystem::path> OpenFileDialog(const char * filters, const char * defaultPath)
+	std::optional<std::filesystem::path> OpenFileDialog(const std::vector<Filter> & filters, const char * defaultPath)
 	{
-		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_OpenDialog(filters, defaultPath, &outPath);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::OpenDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
-			std::string outStr = outPath;
-			free(outPath);
+			std::string outStr = outPath.get();
 			return outStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -241,24 +294,30 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
 
-	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const char * filters, const char * defaultPath)
+	std::optional<std::vector<std::filesystem::path>> OpenFilesDialog(const std::vector<Filter> & filters, const char * defaultPath)
 	{
-		nfdpathset_t pathSet;
-		nfdresult_t result = NFD_OpenDialogMultiple(filters, defaultPath, &pathSet);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePathSet outPaths;
+		nfdresult_t result = NFD::OpenDialogMultiple(outPaths, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
 			std::vector<std::filesystem::path> paths;
-			for (size_t i = 0; i < NFD_PathSet_GetCount(&pathSet); ++i)
+			nfdpathsetsize_t numPaths;
+			NFD::PathSet::Count(outPaths, numPaths);
+			for (nfdfiltersize_t i = 0; i < numPaths; ++i)
 			{
-				std::string path = NFD_PathSet_GetPath(&pathSet, i);
-				paths.emplace_back(path);
+				NFD::UniquePathSetPath path;
+				NFD::PathSet::GetPath(outPaths, i, path);
+				std::string pathStr = path.get();
+				paths.emplace_back(pathStr);
 			}
-			NFD_PathSet_Free(&pathSet);
 			return paths;
 		}
 		else if (result == NFD_CANCEL)
@@ -267,19 +326,21 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::vector<std::filesystem::path>>();
 		}
 	}
 
-	std::optional<std::filesystem::path> SaveFileDialog(const char * filters, const char * defaultPath)
+	std::optional<std::filesystem::path> SaveFileDialog(const std::vector<Filter> & filters, const char * defaultPath, const char * defaultFileName)
 	{
-		nfdchar_t * savePath = NULL;
-		nfdresult_t result = NFD_SaveDialog(filters, defaultPath, &savePath);
+		std::vector<nfdu8filteritem_t> nfdFilters;
+		for (const auto & filter : filters)
+			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::SaveDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath, defaultFileName);
 		if (result == NFD_OKAY)
 		{
-			std::string saveStr = savePath;
-			free(savePath);
+			std::string saveStr = outPath.get();
 			return saveStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -288,19 +349,18 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
 
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
 	{
-		nfdchar_t * outPath = NULL;
-		nfdresult_t result = NFD_PickFolder(defaultPath, &outPath);
+		NFD::UniquePath outPath;
+		nfdresult_t result = NFD::PickFolder(outPath, defaultPath);
 		if (result == NFD_OKAY)
 		{
-			std::string folderStr = outPath;
-			free(outPath);
+			std::string folderStr = outPath.get();
 			return folderStr;
 		}
 		else if (result == NFD_CANCEL)
@@ -309,62 +369,113 @@ namespace ImFrame
 		}
 		else
 		{
-			//NFD_GetError() gets last error;
+			//NFD::GetError() gets last error;
 			return std::optional<std::filesystem::path>();
 		}
 	}
 
     void SetBackgroundColor(std::array<float, 3> color)
     {
-        s_backgroundColor = color;
+        s_data->backgroundColor = color;
     }
 
     std::array<float, 3> GetBackgroundColor()
     {
-        return s_backgroundColor;
+        return s_data->backgroundColor;
     }
 
 	bool IsCustomFontEnabled()
 	{
-		return s_fontEnabled;
+		return s_data->fontEnabled;
 	}
 
 	void EnableCustomFont(bool enable)
 	{
-		if (enable != s_fontEnabled)
+		if (enable != s_data->fontEnabled)
 		{
-			s_fontEnabled = enable;
-			s_fontChanged = true;
+			s_data->fontEnabled = enable;
+			s_data->fontChanged = true;
 		}
 	}
 
 	FontType GetCustomFontType()
 	{
-		return s_fontType;
+		return s_data->fontType;
 	}
 
 	void SetCustomFontType(FontType font)
 	{
-		if (font != s_fontType)
+		if (font != s_data->fontType)
 		{
-			s_fontType = font;
-			s_fontChanged = true;
+			s_data->fontType = font;
+			s_data->fontChanged = true;
 		}
 	}
 
 	float GetCustomFontSize()
 	{
-		return s_fontSize;
+		return s_data->fontSize;
 	}
 
 	void SetCustomFontSize(float pixelSize)
 	{
-		if (pixelSize != s_fontSize)
+		if (pixelSize != s_data->fontSize)
 		{
-			s_fontSize = pixelSize;
-			s_fontChanged = true;
+			s_data->fontSize = pixelSize;
+			s_data->fontChanged = true;
 		}
 	}
+
+	std::string GetConfigValue(const char * sectionName, const char * valueName, const std::string & defaultValue)
+	{
+		return GetConfigValue(s_data->appIni, sectionName, valueName, defaultValue);
+	}
+
+	float GetConfigValue(const char * sectionName, const char * valueName, float defaultValue)
+	{
+		return GetConfigValue(s_data->appIni, sectionName, valueName, defaultValue);
+	}
+
+	double GetConfigValue(const char * sectionName, const char * valueName, double defaultValue)
+	{
+		return GetConfigValue(s_data->appIni, sectionName, valueName, defaultValue);
+	}
+
+	int GetConfigValue(const char * sectionName, const char * valueName, int defaultValue)
+	{
+		return GetConfigValue(s_data->appIni, sectionName, valueName, defaultValue);
+	}
+
+	bool GetConfigValue(const char * sectionName, const char * valueName, bool defaultValue)
+	{
+		return GetConfigValue(s_data->appIni, sectionName, valueName, defaultValue);
+	}
+
+	void SetConfigValue(const char * sectionName, const char * valueName, const std::string & value)
+	{
+		s_data->appIni[sectionName][valueName] = value;
+	}
+
+	void SetConfigValue(const char * sectionName, const char * valueName, float value)
+	{
+		s_data->appIni[sectionName][valueName] = std::to_string(value);
+	}
+
+	void SetConfigValue(const char * sectionName, const char * valueName, double value)
+	{
+		s_data->appIni[sectionName][valueName] = std::to_string(value);
+	}
+
+	void SetConfigValue(const char * sectionName, const char * valueName, int value)
+	{
+		s_data->appIni[sectionName][valueName] = std::to_string(value);
+	}
+
+	void SetConfigValue(const char * sectionName, const char * valueName, bool value)
+	{
+		s_data->appIni[sectionName][valueName] = value ? "1" : "0";
+	}
+
 
     bool BeginMainMenuBar()
     {
@@ -433,8 +544,11 @@ namespace ImFrame
     {
 		namespace fs = std::filesystem;
 
-		// Signal this function to execute on exit
-		atexit(OnExit);
+		// Initialize native file dialog lib
+		NFD::Guard nfdGuard;
+
+		// Allocate all persistent internal window/app data
+		s_data = std::make_unique<PersistentData>();
 
 #ifdef IMFRAME_WINDOWS
 		// Enable memory leak checking
@@ -443,17 +557,19 @@ namespace ImFrame
 #endif
 
 		// Read existing config data
-		mINI::INIStructure ini;
-		GetConfig(ini, orgName, appName);
+		GetImFrameConfig(s_data->imframeIni, orgName, appName);
+		GetConfig(s_data->appIni, "app.ini", orgName, appName);
 
 		// Init GLFW and create window
 		glfwSetErrorCallback(ErrorCallback);
 		if (!glfwInit())
+		{
 			return 1;
+		}
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		GLFWwindow * window = glfwCreateWindow(s_windowWidth, s_windowHeight, appName.c_str(), NULL, NULL);
+		GLFWwindow * window = glfwCreateWindow(s_data->windowWidth, s_data->windowHeight, appName.c_str(), NULL, NULL);
 		if (!window)
 		{
 			glfwTerminate();
@@ -467,8 +583,8 @@ namespace ImFrame
 		glfwSetKeyCallback(window, KeyCallback);
 		glfwSetMouseButtonCallback(window, WindowMouseButtonCallback);
 		glfwSetCursorPosCallback(window, WindowCursorPositionCallback);
-		glfwSetWindowPos(window, s_windowPosX, s_windowPosY);
-		if (s_windowMaximized)
+		glfwSetWindowPos(window, s_data->windowPosX, s_data->windowPosY);
+		if (s_data->windowMaximized)
 			glfwMaximizeWindow(window);
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1);
@@ -496,7 +612,7 @@ namespace ImFrame
 		ImPlot::CreateContext();
         
 		// Create user-defined app
-		s_appPtr = createAppFn(window);
+		s_data->appPtr = createAppFn(window);
 
 		// TEMP TEST!!!
 		auto filePath = GetExecutableFolder();
@@ -524,7 +640,7 @@ namespace ImFrame
 			ImGui::NewFrame();
 
 			// Use custom font for this frame
-			ImFont * font = s_customFont;
+			ImFont * font = s_data->customFont;
 			if (font)
 				ImGui::PushFont(font);
 
@@ -532,11 +648,11 @@ namespace ImFrame
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
 			glViewport(0, 0, width, height);
-			glClearColor(s_backgroundColor[0], s_backgroundColor[1], s_backgroundColor[2], 1.0f);
+			glClearColor(s_data->backgroundColor[0], s_data->backgroundColor[1], s_data->backgroundColor[2], 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Perform app-specific updates
-			s_appPtr->OnUpdate();
+			s_data->appPtr->OnUpdate();
 
 			// Pop custom font at the end of the frame
 			if (font)
@@ -565,10 +681,11 @@ namespace ImFrame
         OsShutDown();
 
 		// Delete application
-		s_appPtr = nullptr;
+		s_data->appPtr = nullptr;
 
 		// Save config data to disk
-		SaveConfig(ini, orgName, appName);
+		SaveConfig(s_data->appIni, "app.ini", orgName, appName);
+		SaveImFrameConfig(s_data->imframeIni, orgName, appName);
 
 		// Shut down ImGui and ImPlot
 		ImGui_ImplOpenGL3_DestroyFontsTexture();
