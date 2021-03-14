@@ -81,6 +81,13 @@ void MainApp::OnUpdate()
 					//printf("%s", path.value().c_str());
 				}
 			}
+#ifndef IMFRAME_MACOS
+			ImFrame::Separator();
+			if (ImFrame::MenuItem("Exit", nullptr))
+			{
+				glfwSetWindowShouldClose(GetWindow(), GLFW_TRUE);
+			}
+#endif
             ImFrame::EndMenu();
 		}
 		if (ImFrame::BeginMenu("View"))
