@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-namespace MyApp
+namespace Minimal
 {
 	class MainApp : public ImFrame::ImApp
 	{
@@ -43,5 +43,5 @@ namespace MyApp
 }
 
 // ImFrame main function and app creation
-IMFRAME_MAIN(ImFrame, MyApp, MyApp::MainApp)
+IMFRAME_MAIN("ImFrame", "Minimal App Demo", Minimal::MainApp)
 

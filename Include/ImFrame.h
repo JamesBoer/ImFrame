@@ -73,13 +73,13 @@ THE SOFTWARE.
 	#define IMFRAME_MAIN(_orgName, _appName, _appClass) \
 		int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) \
 		{ \
-			return ImFrame::Run(#_orgName, #_appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
+			return ImFrame::Run(_orgName, _appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
 		} 
 #else
 	#define IMFRAME_MAIN(_orgName, _appName, _appClass)\
 		int main(int, char **) \
 		{ \
-			return ImFrame::Run(#_orgName, #_appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
+			return ImFrame::Run(_orgName, _appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
 		} 
 #endif
 
