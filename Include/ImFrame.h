@@ -76,12 +76,11 @@ THE SOFTWARE.
 			return ImFrame::Run(#_orgName, #_appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
 		} 
 #else
-#define IMFRAME_MAIN(_orgName, _appName, _appClass)\
-int main(int, char **) \
-#endif \
-	{ \
-		return ImFrame::Run(#_orgName, #_appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
-	} 
+	#define IMFRAME_MAIN(_orgName, _appName, _appClass)\
+		int main(int, char **) \
+		{ \
+			return ImFrame::Run(#_orgName, #_appName, [] (const auto & params) { return std::make_unique<_appClass>(params); }); \
+		} 
 #endif
 
 
