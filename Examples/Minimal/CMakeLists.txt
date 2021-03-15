@@ -13,10 +13,7 @@ project(Minimal)
 # Add source files and dependencies to executable
 set(
 	source_list
-	"Internal.h"
 	"Main.cpp"
-	"MainApp.cpp"
-	"MainApp.h"
 )
 add_executable(Minimal WIN32 ${source_list})
 target_link_libraries(Minimal PRIVATE ImFrame)

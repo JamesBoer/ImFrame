@@ -31,13 +31,6 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-#ifdef IMFRAME_WINDOWS
-int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
-#else
-int main(int, char **)
-#endif
-{
-	return ImFrame::Run("ImFrame", "Features", [] (const auto & params) { return std::make_unique<Features::MainApp>(params); });
-}
-
+// ImFrame main function and app creation
+IMFRAME_MAIN("ImFrame", "Features Demo", Features::MainApp)
 
