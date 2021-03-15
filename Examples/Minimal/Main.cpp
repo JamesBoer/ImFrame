@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 
-#include "Internal.h"
+#include <ImFrame.h>
 
 #ifdef IMFRAME_WINDOWS
 #include <SDKDDKVer.h>
@@ -31,13 +31,17 @@ THE SOFTWARE.
 #include <Windows.h>
 #endif
 
-#ifdef IMFRAME_WINDOWS
-int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
-#else
-int main(int, char **)
-#endif
+namespace MyApp
 {
-	return ImFrame::Run("ImFrame", "Minimal", [] (const auto & params) { return std::make_unique<Minimal::MainApp>(params); });
+	class MainApp : public ImFrame::ImApp
+	{
+	public:
+		MainApp(GLFWwindow * window) : ImFrame::ImApp(window) {}
+		virtual ~MainApp() {}
+		void OnUpdate() override {}
+	};
 }
 
+// ImFraem main function and app creation
+IMFRAME_MAIN(ImFrame, MyApp, MyApp::MainApp)
 
