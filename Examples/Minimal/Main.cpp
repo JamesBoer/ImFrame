@@ -42,6 +42,6 @@ namespace MyApp
 	};
 }
 
-// ImFraem main function and app creation
+// ImFrame main function and app creation
 IMFRAME_MAIN(ImFrame, MyApp, MyApp::MainApp)
 
