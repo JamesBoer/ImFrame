@@ -91,7 +91,11 @@ namespace ImFrame
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
 			if (s_data->appPtr)
+			{
 				s_data->appPtr->OnKeyEvent(key, scancode, action, mods);
+				if (action == GLFW_PRESS)
+					s_data->appPtr->OnKeyPress(key, mods);
+			}
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)

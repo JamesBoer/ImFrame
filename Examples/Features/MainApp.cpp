@@ -47,11 +47,29 @@ MainApp::~MainApp()
 
 }
 
-void MainApp::OnKeyEvent(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
+void MainApp::OnKeyPress(int key, int mods)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	if (key == GLFW_KEY_ESCAPE)
 		glfwSetWindowShouldClose(GetWindow(), GLFW_TRUE);
+	else if (mods == GLFW_MOD_CONTROL)
+	{
+		if (key == GLFW_KEY_O)
+			Open();
+		if (key == GLFW_KEY_S)
+			SaveAs();
+	}
+	else if (mods == GLFW_MOD_ALT)
+	{
+		if (key == GLFW_KEY_P)
+			PickFolder();
+	}
+	else if (mods == (GLFW_MOD_CONTROL | GLFW_MOD_SHIFT))
+	{
+		if (key == GLFW_KEY_E)
+			m_showExtraMenu = !m_showExtraMenu;
+	}
 }
+
 
 void MainApp::OnUpdate()
 {
@@ -59,39 +77,26 @@ void MainApp::OnUpdate()
 	{
 		if (ImFrame::BeginMenu("File"))
 		{
-			if (ImFrame::MenuItem("Open...##Test", "O"))
+			if (ImFrame::MenuItem("Open...##Test", "Ctrl+O"))
 			{
-				auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
-				if (path)
-				{
-					auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
-					if (ret)
-					{
-						if (m_texture.textureID)
-							glDeleteTextures(1, &m_texture.textureID);
-						m_texture = ret.value();
-						m_showTexture = true;
-					}
-				}
+				Open();
 			}
-			if (ImFrame::MenuItem("Save As...", "S"))
+			if (ImFrame::MenuItem("Save As...", "Ctrl+S"))
 			{
-				auto path = ImFrame::SaveFileDialog({ {"Image files", "png,jpg" } }, nullptr, "TestFile.jpg");
-				if (path)
-				{
-				}
+				SaveAs();
 			}
             ImFrame::Separator();
-			if (ImFrame::MenuItem("Pick Folder...", nullptr))
+			if (ImFrame::MenuItem("Pick Folder...", "Alt+P"))
 			{
-				auto path = ImFrame::PickFolderDialog(nullptr);
-				if (path)
-				{
-				}
+				PickFolder();
 			}
 #ifndef IMFRAME_MACOS
 			ImFrame::Separator();
-			if (ImFrame::MenuItem("Exit", nullptr))
+#ifdef IMFRAME_WINDOWS
+			if (ImFrame::MenuItem("Exit", "Alt+F4"))
+#else
+			if (ImFrame::MenuItem("Quit", nullptr))
+#endif
 			{
 				glfwSetWindowShouldClose(GetWindow(), GLFW_TRUE);
 			}
@@ -100,7 +105,7 @@ void MainApp::OnUpdate()
 		}
 		if (ImFrame::BeginMenu("View"))
 		{
-            ImFrame::MenuItem("Show Extra Menu", nullptr, &m_showExtraMenu);
+            ImFrame::MenuItem("Show Extra Menu", "Ctrl+Shift+E", &m_showExtraMenu);
             ImFrame::MenuItem("Show OpenGL Demo", nullptr, &m_showGlDemo);
             ImFrame::MenuItem("Show ImGui Demo", nullptr, &m_showImGuiDemo);
             ImFrame::MenuItem("Show ImPlot Demo", nullptr, &m_showImPlotDemo);
@@ -145,3 +150,36 @@ void MainApp::OnUpdate()
 		ImGui::End();
 	}
 }
+
+void MainApp::Open()
+{
+	auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
+	if (path)
+	{
+		auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
+		if (ret)
+		{
+			if (m_texture.textureID)
+				glDeleteTextures(1, &m_texture.textureID);
+			m_texture = ret.value();
+			m_showTexture = true;
+		}
+	}
+}
+
+void MainApp::SaveAs()
+{
+	auto path = ImFrame::SaveFileDialog({ {"Image files", "png,jpg" } }, nullptr, "TestFile.jpg");
+	if (path)
+	{
+	}
+}
+
+void MainApp::PickFolder()
+{
+	auto path = ImFrame::PickFolderDialog(nullptr);
+	if (path)
+	{
+	}
+}
+

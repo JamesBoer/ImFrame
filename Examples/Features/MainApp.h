@@ -32,9 +32,12 @@ namespace Features
 		MainApp(GLFWwindow * window);
 		virtual ~MainApp();
 		void OnUpdate() override;
-		void OnKeyEvent(int key, int scancode, int action, int mods) override;
+		void OnKeyPress(int key, int mods) override;
 
 	private:
+		void Open();
+		void SaveAs();
+		void PickFolder();
 
         bool m_showExtraMenu = false;
         bool m_showGlDemo = false;
