@@ -582,9 +582,6 @@ namespace ImFrame
     {
 		namespace fs = std::filesystem;
 
-		// Initialize native file dialog lib
-		NFD::Guard nfdGuard;
-
 		// Allocate all persistent internal window/app data
 		s_data = std::make_unique<PersistentData>();
 
@@ -629,6 +626,9 @@ namespace ImFrame
 
 		// Initialize glad GL functions
 		gladLoadGL();
+
+		// Initialize native file dialog lib
+		NFD::Guard nfdGuard;
 
         // Initialize any OS-specific functionality
         OsInitialize();
