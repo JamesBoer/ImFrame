@@ -109,6 +109,7 @@ namespace ImFrame
 
 		// Input events
 		virtual void OnKeyEvent([[maybe_unused]] int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action, [[maybe_unused]] int mods) {}
+		virtual void OnKeyPress([[maybe_unused]] int key, [[maybe_unused]] int mods) {}
 		virtual void OnMouseButtonEvent([[maybe_unused]] int button, [[maybe_unused]] int action, [[maybe_unused]] int mods) {}
 		virtual void OnCursorPosition([[maybe_unused]] double x, [[maybe_unused]] double y) {}
 

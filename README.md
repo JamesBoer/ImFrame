@@ -24,7 +24,7 @@ ImFrame integrates a number of handy third-party libraries into a single handy f
 * [stb_image](https://github.com/nothings/stb) is a library used for loading images.  It uses the MIT license or is public domain.
 
 ## Getting Started
-ImFrame uses CMake, so integration should be straightforward using this build tool.  Just add the library to your CMake script, create an application as required, and you should be off and running.  We've provided several example applications that should provide you with enough information to build your own app.  For example, the following code in the Minimal example shows off everything you need to do to get an application up and running with just a tiny bit of code:
+ImFrame uses CMake, so integration should be straightforward using this build tool.  Just add the library to your CMake script, create an application class as required, and you should be off and running.  We've provided several example applications that should provide you with enough information to build your own app.  For example, the following code in the Minimal example shows off everything you need to do to get an application up and running with just a tiny bit of code:
 
 ``` c++
 #include <ImFrame.h>
@@ -53,10 +53,10 @@ IMFRAME_MAIN("ImFrame", "Minimal App Demo", Minimal::MainApp)
 This application will compile and run on Windows, macOS, and most Linux distros.
 
 ## Stability
-ImFrame is still in early development, so feedback and bug reports are appreciated.  At the moment, should should expected that breaking changes may be introduced as new functionality is added, bugs are fixed, and APIs are streamlined.
+ImFrame is still in early development, so feedback and bug reports are appreciated.  At the moment, it should expected that breaking changes may be introduced as new functionality is added, bugs are fixed, and APIs are streamlined.
 
 ## Screenshots
-Here are a couple of screenshots showing the Features ImFrame demo application running on Windows and macOS.
+The following are some screenshots showing the Features demo running on Windows and macOS.
 
 *Windows Demo*
 ![Table Image](Data/Screenshots/Demo-Win.PNG)

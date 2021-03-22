@@ -91,7 +91,11 @@ namespace ImFrame
 		void KeyCallback([[maybe_unused]] GLFWwindow * window, int key, int scancode, int action, int mods)
 		{
 			if (s_data->appPtr)
+			{
 				s_data->appPtr->OnKeyEvent(key, scancode, action, mods);
+				if (action == GLFW_PRESS)
+					s_data->appPtr->OnKeyPress(key, mods);
+			}
 		}
 
 		void WindowPosCallback(GLFWwindow * window, int x, int y)
@@ -578,9 +582,6 @@ namespace ImFrame
     {
 		namespace fs = std::filesystem;
 
-		// Initialize native file dialog lib
-		NFD::Guard nfdGuard;
-
 		// Allocate all persistent internal window/app data
 		s_data = std::make_unique<PersistentData>();
 
@@ -625,6 +626,9 @@ namespace ImFrame
 
 		// Initialize glad GL functions
 		gladLoadGL();
+
+		// Initialize native file dialog lib
+		NFD::Guard nfdGuard;
 
         // Initialize any OS-specific functionality
         OsInitialize();
