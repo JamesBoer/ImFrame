@@ -213,7 +213,18 @@ namespace ImFrame
             menuItem.action = @selector(OnClick:);
             menuItem.target = s_menuHandler;
             if (shortcut) // We'll assume the shortcut isn't going to dynamically change
-                menuItem.keyEquivalent = [NSString stringWithUTF8String:shortcut];
+            {
+                NSString * shortcutStr = [[NSString stringWithUTF8String:shortcut] lowercaseString];
+                NSUInteger flags = 0;
+                if ([shortcutStr containsString:@"ctrl"])
+                    flags |= NSEventModifierFlagCommand;
+                if ([shortcutStr containsString:@"shift"])
+                    flags |= NSEventModifierFlagShift;
+                if ([shortcutStr containsString:@"alt"])
+                    flags |= NSEventModifierFlagOption;
+                [menuItem setKeyEquivalentModifierMask:flags];
+                menuItem.keyEquivalent = [shortcutStr substringFromIndex:[shortcutStr length] - 1];
+            }
             [s_menus.back().menu addItem:menuItem];
         }
         
