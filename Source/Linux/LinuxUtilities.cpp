@@ -25,6 +25,12 @@ THE SOFTWARE.
 
 #include <unistd.h>
 #include <pwd.h>
+#include <limits.h>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_X11
+#include <GLFW/glfw3native.h>
 
 #include "../ImfInternal.h"
 
@@ -52,12 +58,15 @@ namespace ImFrame
 
 	std::string OsGetExecutableFolder()
 	{
-		/*
+
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
 		return std::string(result, (count > 0) ? count : 0);
-		*/
-		return std::string();
+	}
+	
+	void * OsGetNativeWindow(GLFWwindow * window)
+	{
+		return reinterpret_cast<void *>(glfwGetX11Window(window));
 	}
 
     void OsInitialize()
