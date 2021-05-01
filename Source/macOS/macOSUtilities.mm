@@ -24,6 +24,11 @@ THE SOFTWARE.
 
 #include "../ImfInternal.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3native.h>
+
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
@@ -76,6 +81,11 @@ namespace ImFrame
         const char * str = [path UTF8String];
 		return std::string(str);
 	}
+
+    void * OsGetNativeWindow(GLFWwindow * window)
+    {
+        return static_cast<void *>(glfwGetCocoaWindow(window));
+    }
 
     void OsInitialize()
     {
