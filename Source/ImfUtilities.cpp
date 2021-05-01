@@ -50,4 +50,9 @@ namespace ImFrame
 		return p;
 	}
 
+	void * GetNativeWindow(GLFWwindow * window)
+	{
+		return OsGetNativeWindow(window);
+	}
+
 }

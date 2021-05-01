@@ -30,5 +30,5 @@ namespace ImFrame
 
     std::filesystem::path GetConfigFolder(const std::string & companyName, const std::string & appName);
 	std::filesystem::path GetExecutableFolder();
-
+	void * GetNativeWindow(GLFWwindow * window);
 }

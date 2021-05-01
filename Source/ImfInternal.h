@@ -43,6 +43,7 @@ namespace ImFrame
 {
 	std::string OsGetConfigFolder();
 	std::string OsGetExecutableFolder();
+	void * OsGetNativeWindow(GLFWwindow * window);
 
     void OsInitialize();
     void OsShutDown();

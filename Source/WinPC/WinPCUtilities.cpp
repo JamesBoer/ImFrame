@@ -28,6 +28,11 @@ THE SOFTWARE.
 #include <Shlobj.h>
 #include <filesystem>
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include "../ImfInternal.h"
 
 namespace ImFrame
@@ -81,6 +86,11 @@ namespace ImFrame
 		if (size == 0)
 			return std::string();
 		return utf8_encode(buffer);
+	}
+
+	void * OsGetNativeWindow(GLFWwindow * window)
+	{
+		return static_cast<void *>(glfwGetWin32Window(window));
 	}
 
     void OsInitialize()
