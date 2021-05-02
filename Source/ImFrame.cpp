@@ -30,9 +30,6 @@ THE SOFTWARE.
 #include "Fonts/RobotoMedium.h"
 #include "Fonts/RobotoRegular.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 namespace ImFrame
 {
 	namespace

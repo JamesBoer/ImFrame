@@ -22,6 +22,8 @@ endif()
 # Ensure ImGui integration file uses glad loader
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
+option(IMFRAME_BUILD_STB "Build stb library" ON)
+
 # Set some specific glfw options
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
@@ -34,7 +36,9 @@ add_subdirectory("External/Implot")
 add_subdirectory("External/nativefiledialog-extended")
 add_custom_target(linmath SOURCES "External/linmath/linmath.h")
 add_custom_target(mINI SOURCES "External/mINI/src/mini/ini.h")
-add_custom_target(stb SOURCES "External/stb/stb_image.h")
+if (IMFRAME_BUILD_STB)
+	add_subdirectory("External/stb")
+endif()
 
 # Indicate that we should place these in the External project folder
 set_property(TARGET glad PROPERTY FOLDER "External")
@@ -44,7 +48,9 @@ set_property(TARGET Implot PROPERTY FOLDER "External")
 set_property(TARGET nfd PROPERTY FOLDER "External")
 set_property(TARGET linmath PROPERTY FOLDER "External")
 set_property(TARGET mINI PROPERTY FOLDER "External")
-set_property(TARGET stb PROPERTY FOLDER "External")
+if (IMFRAME_BUILD_STB)
+	set_property(TARGET stb PROPERTY FOLDER "External")
+endif()
 
 # Add source files and dependencies to library
 set(
@@ -72,7 +78,7 @@ elseif(UNIX AND NOT APPLE)
 	list(APPEND source_list "Source/Linux/LinuxUtilities.cpp")
 endif()
 add_library(ImFrame ${source_list})
-target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nfd)
+target_link_libraries(ImFrame PRIVATE glad glfw Imgui Implot nfd stb)
 
 # Set compiler options
 if(MSVC)
