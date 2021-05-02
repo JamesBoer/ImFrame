@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <filesystem>
 #include <cassert>
 
+#include <Tbl.hpp>
 #include <mini/ini.h>
 #include <nfd.hpp>
 #include <stb_image.h>

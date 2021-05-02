@@ -39,6 +39,7 @@ add_custom_target(mINI SOURCES "External/mINI/src/mini/ini.h")
 if (IMFRAME_BUILD_STB)
 	add_subdirectory("External/stb")
 endif()
+add_custom_target(Tbl SOURCES "External/Tbl/Tbl.hpp")
 
 # Indicate that we should place these in the External project folder
 set_property(TARGET glad PROPERTY FOLDER "External")
@@ -51,6 +52,7 @@ set_property(TARGET mINI PROPERTY FOLDER "External")
 if (IMFRAME_BUILD_STB)
 	set_property(TARGET stb PROPERTY FOLDER "External")
 endif()
+set_property(TARGET Tbl PROPERTY FOLDER "External")
 
 # Add source files and dependencies to library
 set(
@@ -99,6 +101,7 @@ target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/mINI/
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/soil/include")
 target_include_directories(Implot PRIVATE "${PROJECT_SOURCE_DIR}/External/Imgui")
 target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/stb")
+target_include_directories(ImFrame PRIVATE "${PROJECT_SOURCE_DIR}/External/Tbl")
 
 # Create folder structure
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${source_list})
