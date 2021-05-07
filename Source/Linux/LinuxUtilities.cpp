@@ -60,7 +60,7 @@ namespace ImFrame
 	{
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-		auto p = std::filesystem::path(result, (count > 0) ? count : 0);
+		auto p = std::filesystem::path(std::string(result, (count > 0) ? count : 0));
 		p.remove_filename();
 		return p;
 	}
