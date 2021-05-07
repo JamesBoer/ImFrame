@@ -64,7 +64,7 @@ namespace ImFrame
 
 	}
 
-	std::string OsGetConfigFolder()
+	std::filesystem::path OsGetConfigFolder()
 	{
 		PWSTR pszPath = NULL;
 		HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, NULL, NULL, &pszPath);
@@ -79,13 +79,20 @@ namespace ImFrame
 		return rootFolder;
 	}
 
-	std::string OsGetExecutableFolder()
+	std::filesystem::path OsGetExecutableFolder()
 	{
 		WCHAR buffer[1024];
 		DWORD size = GetModuleFileNameW(NULL, buffer, static_cast<DWORD>(std::size(buffer)));
 		if (size == 0)
 			return std::string();
-		return utf8_encode(buffer);
+		std::filesystem::path p = utf8_encode(buffer);
+		p.remove_filename();
+		return p;
+	}
+
+	std::filesystem::path OsGetResourceFolder()
+	{
+		return OsGetExecutableFolder();
 	}
 
 	void * OsGetNativeWindow(GLFWwindow * window)

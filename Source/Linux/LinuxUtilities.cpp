@@ -37,10 +37,10 @@ THE SOFTWARE.
 namespace ImFrame
 {
 
-	std::string OsGetConfigFolder()
+	std::filesystem::path OsGetConfigFolder()
 	{
 		char * rootDir = getenv("XDG_CONFIG_HOME");
-		std::string folder;
+		std::filesystem::path folder;
 		if (!rootDir)
 		{
 			rootDir = getenv("HOME");
@@ -48,7 +48,7 @@ namespace ImFrame
 			{
 				rootDir = getpwuid(getuid())->pw_dir;
 				if (!rootDir)
-					return std::string();
+					return std::filesystem::path();
 			}
 			folder = rootDir;
 			folder += "/.config";
@@ -56,14 +56,20 @@ namespace ImFrame
 		return folder;
 	}
 
-	std::string OsGetExecutableFolder()
+	std::filesystem::path OsGetExecutableFolder()
 	{
-
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-		return std::string(result, (count > 0) ? count : 0);
+		auto p = std::filesystem::path(result, (count > 0) ? count : 0);
+		p.remove_filename();
+		return p;
 	}
-	
+
+	std::filesystem::path OsGetResourceFolder()
+	{
+		return OsGetExecutableFolder();
+	}
+
 	void * OsGetNativeWindow(GLFWwindow * window)
 	{
 		return reinterpret_cast<void *>(glfwGetX11Window(window));

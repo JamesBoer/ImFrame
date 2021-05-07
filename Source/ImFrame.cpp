@@ -629,10 +629,14 @@ namespace ImFrame
 		gladLoadGL();
 
 		// Initialize native file dialog lib
-		NFD::Guard nfdGuard;
+		NFD::Init();
 
         // Initialize any OS-specific functionality
         OsInitialize();
+
+		// TEST: Get resource folder
+		auto resourceFolder = GetResourceFolder();
+		resourceFolder += "Test";
 
 		// Initialize ImGui
 		ImGui::CreateContext();
@@ -721,6 +725,9 @@ namespace ImFrame
 		ImGui_ImplOpenGL3_Shutdown();
 		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
+
+		// Shut down native file dialog lib
+		NFD::Quit();
 
 		// Shut down glfw
 		glfwDestroyWindow(window);

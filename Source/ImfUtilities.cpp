@@ -44,10 +44,12 @@ namespace ImFrame
 
 	std::filesystem::path GetExecutableFolder()
 	{
-		namespace fs = std::filesystem;
-		fs::path p = OsGetExecutableFolder();
-		p.remove_filename();
-		return p;
+		return OsGetExecutableFolder();;
+	}
+
+	std::filesystem::path GetResourceFolder()
+	{
+		return OsGetResourceFolder();
 	}
 
 	void * GetNativeWindow(GLFWwindow * window)

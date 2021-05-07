@@ -67,19 +67,26 @@ namespace ImFrame
     static bool s_buildMenus = true;
     static bool s_clearMenus = false;
 
-	std::string OsGetConfigFolder()
+	std::filesystem::path OsGetConfigFolder()
 	{
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString * path = [paths objectAtIndex:0];
         const char * str = [path UTF8String];
-        return std::string(str);
+        return std::filesystem::path(str);
 	}
 
-	std::string OsGetExecutableFolder()
+	std::filesystem::path OsGetExecutableFolder()
 	{		
         NSString * path = [[NSBundle mainBundle] executablePath];
         const char * str = [path UTF8String];
-		return std::string(str);
+		auto p = std::filesystem::path(str);
+        p.remove_filename();
+        return p;
+	}
+
+	std::filesystem::path OsGetResourceFolder()
+	{
+		return OsGetExecutableFolder();
 	}
 
     void * OsGetNativeWindow(GLFWwindow * window)

@@ -42,8 +42,9 @@ THE SOFTWARE.
 
 namespace ImFrame
 {
-	std::string OsGetConfigFolder();
-	std::string OsGetExecutableFolder();
+	std::filesystem::path OsGetConfigFolder();
+	std::filesystem::path OsGetExecutableFolder();
+	std::filesystem::path OsGetResourceFolder();
 	void * OsGetNativeWindow(GLFWwindow * window);
 
     void OsInitialize();
