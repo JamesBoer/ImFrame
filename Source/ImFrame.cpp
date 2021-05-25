@@ -634,10 +634,6 @@ namespace ImFrame
         // Initialize any OS-specific functionality
         OsInitialize();
 
-		// TEST: Get resource folder
-		auto resourceFolder = GetResourceFolder();
-		resourceFolder += "Test";
-
 		// Initialize ImGui
 		ImGui::CreateContext();
 		ImGuiIO & io = ImGui::GetIO();
