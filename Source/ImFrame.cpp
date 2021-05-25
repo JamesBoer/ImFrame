@@ -30,9 +30,6 @@ THE SOFTWARE.
 #include "Fonts/RobotoMedium.h"
 #include "Fonts/RobotoRegular.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 namespace ImFrame
 {
 	namespace
@@ -288,8 +285,9 @@ namespace ImFrame
 		std::vector<nfdu8filteritem_t> nfdFilters;
 		for (const auto & filter : filters)
 			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		void * window = GetNativeWindow(s_data->appPtr->GetWindow());
 		NFD::UniquePath outPath;
-		nfdresult_t result = NFD::OpenDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
+		nfdresult_t result = NFD::OpenDialog(outPath, window, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
 			std::string outStr = outPath.get();
@@ -311,8 +309,9 @@ namespace ImFrame
 		std::vector<nfdu8filteritem_t> nfdFilters;
 		for (const auto & filter : filters)
 			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		void * window = GetNativeWindow(s_data->appPtr->GetWindow());
 		NFD::UniquePathSet outPaths;
-		nfdresult_t result = NFD::OpenDialogMultiple(outPaths, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
+		nfdresult_t result = NFD::OpenDialogMultiple(outPaths, window, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath);
 		if (result == NFD_OKAY)
 		{
 			std::vector<std::filesystem::path> paths;
@@ -343,8 +342,9 @@ namespace ImFrame
 		std::vector<nfdu8filteritem_t> nfdFilters;
 		for (const auto & filter : filters)
 			nfdFilters.push_back({ filter.name.c_str(), filter.spec.c_str() });
+		void * window = GetNativeWindow(s_data->appPtr->GetWindow());
 		NFD::UniquePath outPath;
-		nfdresult_t result = NFD::SaveDialog(outPath, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath, defaultFileName);
+		nfdresult_t result = NFD::SaveDialog(outPath, window, nfdFilters.data(), static_cast<nfdfiltersize_t>(nfdFilters.size()), defaultPath, defaultFileName);
 		if (result == NFD_OKAY)
 		{
 			std::string saveStr = outPath.get();
@@ -363,8 +363,9 @@ namespace ImFrame
 
 	std::optional<std::filesystem::path> PickFolderDialog(const char * defaultPath)
 	{
+		void * window = GetNativeWindow(s_data->appPtr->GetWindow());
 		NFD::UniquePath outPath;
-		nfdresult_t result = NFD::PickFolder(outPath, defaultPath);
+		nfdresult_t result = NFD::PickFolder(outPath, window, defaultPath);
 		if (result == NFD_OKAY)
 		{
 			std::string folderStr = outPath.get();
@@ -628,7 +629,7 @@ namespace ImFrame
 		gladLoadGL();
 
 		// Initialize native file dialog lib
-		NFD::Guard nfdGuard;
+		NFD::Init();
 
         // Initialize any OS-specific functionality
         OsInitialize();
@@ -720,6 +721,9 @@ namespace ImFrame
 		ImGui_ImplOpenGL3_Shutdown();
 		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
+
+		// Shut down native file dialog lib
+		NFD::Quit();
 
 		// Shut down glfw
 		glfwDestroyWindow(window);

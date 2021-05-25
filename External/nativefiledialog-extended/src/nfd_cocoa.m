@@ -130,6 +130,7 @@ void NFD_Quit(void) {
 
 
 nfdresult_t NFD_OpenDialogN( nfdnchar_t **outPath,
+                             void *window,
                              const nfdnfilteritem_t *filterList,
                              nfdfiltersize_t filterCount,
                              const nfdnchar_t *defaultPath )
@@ -171,6 +172,7 @@ nfdresult_t NFD_OpenDialogN( nfdnchar_t **outPath,
 
 
 nfdresult_t NFD_OpenDialogMultipleN( const nfdpathset_t **outPaths,
+                                     void *window,
                                      const nfdnfilteritem_t *filterList,
                                      nfdfiltersize_t filterCount,
                                      const nfdnchar_t *defaultPath )
@@ -208,6 +210,7 @@ nfdresult_t NFD_OpenDialogMultipleN( const nfdpathset_t **outPaths,
 
 
 nfdresult_t NFD_SaveDialogN( nfdnchar_t **outPath,
+                             void *window,
                              const nfdnfilteritem_t *filterList,
                              nfdfiltersize_t filterCount,
                              const nfdnchar_t *defaultPath,
@@ -254,6 +257,7 @@ nfdresult_t NFD_SaveDialogN( nfdnchar_t **outPath,
 }
 
 nfdresult_t NFD_PickFolderN( nfdnchar_t **outPath,
+                             void *window,
                              const nfdnchar_t *defaultPath )
 {
     nfdresult_t result = NFD_CANCEL;

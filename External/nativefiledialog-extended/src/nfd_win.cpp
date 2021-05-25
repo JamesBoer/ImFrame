@@ -331,6 +331,7 @@ void NFD_FreePathN(nfdnchar_t* filePath) {
 
 
 nfdresult_t NFD_OpenDialogN( nfdnchar_t **outPath,
+	                         void *window,
                              const nfdnfilteritem_t *filterList,
                              nfdfiltersize_t filterCount,
                              const nfdnchar_t *defaultPath )
@@ -376,7 +377,7 @@ nfdresult_t NFD_OpenDialogN( nfdnchar_t **outPath,
     }
     
     // Show the dialog.
-    result = fileOpenDialog->Show(nullptr);
+    result = fileOpenDialog->Show(static_cast<HWND>(window));
     if ( SUCCEEDED(result) )
     {
         // Get the file name
@@ -413,6 +414,7 @@ nfdresult_t NFD_OpenDialogN( nfdnchar_t **outPath,
 }
 
 nfdresult_t NFD_OpenDialogMultipleN( const nfdpathset_t **outPaths,
+ 	                                 void *window,
                                      const nfdnfilteritem_t *filterList,
                                      nfdfiltersize_t filterCount,
                                      const nfdnchar_t *defaultPath )
@@ -457,7 +459,7 @@ nfdresult_t NFD_OpenDialogMultipleN( const nfdpathset_t **outPaths,
     }
  
     // Show the dialog.
-    result = fileOpenDialog->Show(nullptr);
+    result = fileOpenDialog->Show(static_cast<HWND>(window));
     if ( SUCCEEDED(result) )
     {
         ::IShellItemArray *shellItems;
@@ -485,6 +487,7 @@ nfdresult_t NFD_OpenDialogMultipleN( const nfdpathset_t **outPaths,
 }
 
 nfdresult_t NFD_SaveDialogN( nfdnchar_t **outPath,
+ 	                         void *window,
                              const nfdnfilteritem_t *filterList,
                              nfdfiltersize_t filterCount,
                              const nfdnchar_t *defaultPath,
@@ -537,7 +540,7 @@ nfdresult_t NFD_SaveDialogN( nfdnchar_t **outPath,
     }
 
     // Show the dialog.
-    result = fileSaveDialog->Show(nullptr);
+    result = fileSaveDialog->Show(static_cast<HWND>(window));
     if ( SUCCEEDED(result) )
     {
         // Get the file name
@@ -575,6 +578,7 @@ nfdresult_t NFD_SaveDialogN( nfdnchar_t **outPath,
 
 
 nfdresult_t NFD_PickFolderN( nfdnchar_t **outPath,
+ 	                         void *window,
                              const nfdnchar_t *defaultPath )
 {
     ::IFileOpenDialog *fileOpenDialog;
@@ -602,7 +606,7 @@ nfdresult_t NFD_PickFolderN( nfdnchar_t **outPath,
     }
 
     // Show the dialog to the user
-    const HRESULT result = fileOpenDialog->Show(nullptr);
+    const HRESULT result = fileOpenDialog->Show(static_cast<HWND>(window));
     if (result == HRESULT_FROM_WIN32(ERROR_CANCELLED))
     {
         return NFD_CANCEL;
@@ -799,6 +803,7 @@ void NFD_FreePathU8(nfdu8char_t *outPath) {
 }
 
 nfdresult_t NFD_OpenDialogU8( nfdu8char_t **outPath,
+                              void * window,
                               const nfdu8filteritem_t *filterList,
                               nfdfiltersize_t count,
                               const nfdu8char_t *defaultPath )
@@ -816,7 +821,7 @@ nfdresult_t NFD_OpenDialogU8( nfdu8char_t **outPath,
 
     // call the native function
     nfdnchar_t *outPathN;
-    nfdresult_t res = NFD_OpenDialogN(&outPathN, filterItemsNGuard.data, count, defaultPathNGuard.data);
+    nfdresult_t res = NFD_OpenDialogN(&outPathN, window, filterItemsNGuard.data, count, defaultPathNGuard.data);
 
     if (res != NFD_OKAY) {
         return res;
@@ -834,6 +839,7 @@ nfdresult_t NFD_OpenDialogU8( nfdu8char_t **outPath,
 /* multiple file open dialog */    
 /* It is the caller's responsibility to free `outPaths` via NFD_PathSet_Free() if this function returns NFD_OKAY */
 nfdresult_t NFD_OpenDialogMultipleU8( const nfdpathset_t **outPaths,
+                                      void * window,
                                       const nfdu8filteritem_t *filterList,
                                       nfdfiltersize_t count,
                                       const nfdu8char_t *defaultPath )
@@ -850,12 +856,13 @@ nfdresult_t NFD_OpenDialogMultipleU8( const nfdpathset_t **outPaths,
     NormalizePathSeparator(defaultPathNGuard.data);
 
     // call the native function
-    return NFD_OpenDialogMultipleN(outPaths, filterItemsNGuard.data, count, defaultPathNGuard.data);
+    return NFD_OpenDialogMultipleN(outPaths, window, filterItemsNGuard.data, count, defaultPathNGuard.data);
 }
 
 /* save dialog */
 /* It is the caller's responsibility to free `outPath` via NFD_FreePathU8() if this function returns NFD_OKAY */
 nfdresult_t NFD_SaveDialogU8( nfdu8char_t **outPath,
+                              void * window,
                               const nfdu8filteritem_t *filterList,
                               nfdfiltersize_t count,
                               const nfdu8char_t *defaultPath,
@@ -878,7 +885,7 @@ nfdresult_t NFD_SaveDialogU8( nfdu8char_t **outPath,
 
     // call the native function
     nfdnchar_t *outPathN;
-    nfdresult_t res = NFD_SaveDialogN(&outPathN, filterItemsNGuard.data, count, defaultPathNGuard.data, defaultNameNGuard.data);
+    nfdresult_t res = NFD_SaveDialogN(&outPathN, window, filterItemsNGuard.data, count, defaultPathNGuard.data, defaultNameNGuard.data);
 
     if (res != NFD_OKAY) {
         return res;
@@ -896,6 +903,7 @@ nfdresult_t NFD_SaveDialogU8( nfdu8char_t **outPath,
 /* select folder dialog */
 /* It is the caller's responsibility to free `outPath` via NFD_FreePathU8() if this function returns NFD_OKAY */
 nfdresult_t NFD_PickFolderU8( nfdu8char_t **outPath,
+                              void * window,
                               const nfdu8char_t *defaultPath )
 {
     // convert and normalize the default path, but only if it is not nullptr
@@ -905,7 +913,7 @@ nfdresult_t NFD_PickFolderU8( nfdu8char_t **outPath,
 
     // call the native function
     nfdnchar_t *outPathN;
-    nfdresult_t res = NFD_PickFolderN(&outPathN, defaultPathNGuard.data);
+    nfdresult_t res = NFD_PickFolderN(&outPathN, window, defaultPathNGuard.data);
 
     if (res != NFD_OKAY) {
         return res;

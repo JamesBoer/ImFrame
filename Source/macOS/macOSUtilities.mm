@@ -24,6 +24,11 @@ THE SOFTWARE.
 
 #include "../ImfInternal.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3native.h>
+
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
@@ -62,20 +67,32 @@ namespace ImFrame
     static bool s_buildMenus = true;
     static bool s_clearMenus = false;
 
-	std::string OsGetConfigFolder()
+	std::filesystem::path OsGetConfigFolder()
 	{
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString * path = [paths objectAtIndex:0];
         const char * str = [path UTF8String];
-        return std::string(str);
+        return std::filesystem::path(str);
 	}
 
-	std::string OsGetExecutableFolder()
+	std::filesystem::path OsGetExecutableFolder()
 	{		
         NSString * path = [[NSBundle mainBundle] executablePath];
         const char * str = [path UTF8String];
-		return std::string(str);
+		auto p = std::filesystem::path(str);
+        p.remove_filename();
+        return p;
 	}
+
+	std::filesystem::path OsGetResourceFolder()
+	{
+		return OsGetExecutableFolder();
+	}
+
+    void * OsGetNativeWindow(GLFWwindow * window)
+    {
+        return static_cast<void *>(glfwGetCocoaWindow(window));
+    }
 
     void OsInitialize()
     {
@@ -213,7 +230,18 @@ namespace ImFrame
             menuItem.action = @selector(OnClick:);
             menuItem.target = s_menuHandler;
             if (shortcut) // We'll assume the shortcut isn't going to dynamically change
-                menuItem.keyEquivalent = [NSString stringWithUTF8String:shortcut];
+            {
+                NSString * shortcutStr = [[NSString stringWithUTF8String:shortcut] lowercaseString];
+                NSUInteger flags = 0;
+                if ([shortcutStr containsString:@"ctrl"])
+                    flags |= NSEventModifierFlagCommand;
+                if ([shortcutStr containsString:@"shift"])
+                    flags |= NSEventModifierFlagShift;
+                if ([shortcutStr containsString:@"alt"])
+                    flags |= NSEventModifierFlagOption;
+                [menuItem setKeyEquivalentModifierMask:flags];
+                menuItem.keyEquivalent = [shortcutStr substringFromIndex:[shortcutStr length] - 1];
+            }
             [s_menus.back().menu addItem:menuItem];
         }
         
