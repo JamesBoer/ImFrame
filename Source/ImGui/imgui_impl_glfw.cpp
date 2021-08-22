@@ -912,7 +912,7 @@ extern "C" { extern GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance
 static int ImGui_ImplGlfw_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface)
 {
     ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData;
-    IM_ASSERT(bd->ClientApi == GlfwClientApi_Vulkan);
+    IM_ASSERT(ImGui_ImplGlfw_GetBackendData()->ClientApi == GlfwClientApi_Vulkan);
     VkResult err = glfwCreateWindowSurface((VkInstance)vk_instance, vd->Window, (const VkAllocationCallbacks*)vk_allocator, (VkSurfaceKHR*)out_vk_surface);
     return (int)err;
 }
