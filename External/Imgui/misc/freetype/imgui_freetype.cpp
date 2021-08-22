@@ -1,11 +1,12 @@
 // dear imgui: FreeType font builder (used as a replacement for the stb_truetype builder)
 // (code)
 
-// Get latest version at https://github.com/ocornut/imgui/tree/master/misc/freetype
+// Get the latest version at https://github.com/ocornut/imgui/tree/master/misc/freetype
 // Original code by @vuhdo (Aleksei Skriabin). Improvements by @mikesart. Maintained since 2019 by @ocornut.
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
+//  2021/03/05: added ImGuiFreeTypeBuilderFlags_Bitmap to load bitmap glyphs.
 //  2021/03/02: set 'atlas->TexPixelsUseColors = true' to help some backends with deciding of a prefered texture format.
 //  2021/01/28: added support for color-layered glyphs via ImGuiFreeTypeBuilderFlags_LoadColor (require Freetype 2.10+).
 //  2021/01/26: simplified integration by using '#define IMGUI_ENABLE_FREETYPE'.
@@ -40,7 +41,8 @@
 #include FT_SYNTHESIS_H         // <freetype/ftsynth.h>
 
 #ifdef _MSC_VER
-#pragma warning (disable: 4505) // unreferenced local function has been removed (stb stuff)
+#pragma warning (disable: 4505)     // unreferenced local function has been removed (stb stuff)
+#pragma warning (disable: 26812)    // [Static Analyzer] The enum type 'xxx' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
 #endif
 
 #if defined(__GNUC__)
@@ -152,12 +154,13 @@ namespace
         if (error != 0)
             return false;
 
-        memset(&Info, 0, sizeof(Info));
-        SetPixelHeight((uint32_t)cfg.SizePixels);
-
         // Convert to FreeType flags (NB: Bold and Oblique are processed separately)
         UserFlags = cfg.FontBuilderFlags | extra_font_builder_flags;
-        LoadFlags = FT_LOAD_NO_BITMAP;
+
+        LoadFlags = 0;
+        if ((UserFlags & ImGuiFreeTypeBuilderFlags_Bitmap) == 0)
+            LoadFlags |= FT_LOAD_NO_BITMAP;
+
         if (UserFlags & ImGuiFreeTypeBuilderFlags_NoHinting)
             LoadFlags |= FT_LOAD_NO_HINTING;
         if (UserFlags & ImGuiFreeTypeBuilderFlags_NoAutoHint)
@@ -179,6 +182,9 @@ namespace
         if (UserFlags & ImGuiFreeTypeBuilderFlags_LoadColor)
             LoadFlags |= FT_LOAD_COLOR;
 
+        memset(&Info, 0, sizeof(Info));
+        SetPixelHeight((uint32_t)cfg.SizePixels);
+
         return true;
     }
 
@@ -197,7 +203,7 @@ namespace
         // is a maximum height of an any given glyph, i.e. it's the sum of font's ascender and descender. Seems strange to me.
         // NB: FT_Set_Pixel_Sizes() doesn't seem to get us the same result.
         FT_Size_RequestRec req;
-        req.type = FT_SIZE_REQUEST_TYPE_REAL_DIM;
+        req.type = (UserFlags & ImGuiFreeTypeBuilderFlags_Bitmap) ? FT_SIZE_REQUEST_TYPE_NOMINAL : FT_SIZE_REQUEST_TYPE_REAL_DIM;
         req.width = 0;
         req.height = (uint32_t)pixel_height * 64;
         req.horiResolution = 0;
@@ -225,7 +231,7 @@ namespace
 
         // Need an outline for this to work
         FT_GlyphSlot slot = Face->glyph;
-        IM_ASSERT(slot->format == FT_GLYPH_FORMAT_OUTLINE);
+        IM_ASSERT(slot->format == FT_GLYPH_FORMAT_OUTLINE || slot->format == FT_GLYPH_FORMAT_BITMAP);
 
         // Apply convenience transform (this is not picking from real "Bold"/"Italic" fonts! Merely applying FreeType helper transform. Oblique == Slanting)
         if (UserFlags & ImGuiFreeTypeBuilderFlags_Bold)
@@ -595,13 +601,15 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
     atlas->TexUvScale = ImVec2(1.0f / atlas->TexWidth, 1.0f / atlas->TexHeight);
     if (src_load_color)
     {
-        atlas->TexPixelsRGBA32 = (unsigned int*)IM_ALLOC(atlas->TexWidth * atlas->TexHeight * 4);
-        memset(atlas->TexPixelsRGBA32, 0, atlas->TexWidth * atlas->TexHeight * 4);
+        size_t tex_size = (size_t)atlas->TexWidth * atlas->TexHeight * 4;
+        atlas->TexPixelsRGBA32 = (unsigned int*)IM_ALLOC(tex_size);
+        memset(atlas->TexPixelsRGBA32, 0, tex_size);
     }
     else
     {
-        atlas->TexPixelsAlpha8 = (unsigned char*)IM_ALLOC(atlas->TexWidth * atlas->TexHeight);
-        memset(atlas->TexPixelsAlpha8, 0, atlas->TexWidth * atlas->TexHeight);
+        size_t tex_size = (size_t)atlas->TexWidth * atlas->TexHeight * 1;
+        atlas->TexPixelsAlpha8 = (unsigned char*)IM_ALLOC(tex_size);
+        memset(atlas->TexPixelsAlpha8, 0, tex_size);
     }
 
     // 8. Copy rasterized font characters back into the main texture
@@ -640,6 +648,22 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
             const int tx = pack_rect.x + padding;
             const int ty = pack_rect.y + padding;
 
+            // Register glyph
+            float x0 = info.OffsetX + font_off_x;
+            float y0 = info.OffsetY + font_off_y;
+            float x1 = x0 + info.Width;
+            float y1 = y0 + info.Height;
+            float u0 = (tx) / (float)atlas->TexWidth;
+            float v0 = (ty) / (float)atlas->TexHeight;
+            float u1 = (tx + info.Width) / (float)atlas->TexWidth;
+            float v1 = (ty + info.Height) / (float)atlas->TexHeight;
+            dst_font->AddGlyph(&cfg, (ImWchar)src_glyph.Codepoint, x0, y0, x1, y1, u0, v0, u1, v1, info.AdvanceX);
+
+            ImFontGlyph* dst_glyph = &dst_font->Glyphs.back();
+            IM_ASSERT(dst_glyph->Codepoint == src_glyph.Codepoint);
+            if (src_glyph.Info.IsColored)
+                dst_glyph->Colored = tex_use_colors = true;
+
             // Blit from temporary buffer to final texture
             size_t blit_src_stride = (size_t)src_glyph.Info.Width;
             size_t blit_dst_stride = (size_t)atlas->TexWidth;
@@ -658,22 +682,6 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
                     for (int x = 0; x < info.Width; x++)
                         blit_dst[x] = blit_src[x];
             }
-
-            // Register glyph
-            float x0 = info.OffsetX + font_off_x;
-            float y0 = info.OffsetY + font_off_y;
-            float x1 = x0 + info.Width;
-            float y1 = y0 + info.Height;
-            float u0 = (tx) / (float)atlas->TexWidth;
-            float v0 = (ty) / (float)atlas->TexHeight;
-            float u1 = (tx + info.Width) / (float)atlas->TexWidth;
-            float v1 = (ty + info.Height) / (float)atlas->TexHeight;
-            dst_font->AddGlyph(&cfg, (ImWchar)src_glyph.Codepoint, x0, y0, x1, y1, u0, v0, u1, v1, info.AdvanceX);
-
-            ImFontGlyph* dst_glyph = &dst_font->Glyphs.back();
-            IM_ASSERT(dst_glyph->Codepoint == src_glyph.Codepoint);
-            if (src_glyph.Info.IsColored)
-                dst_glyph->Colored = tex_use_colors = true;
         }
 
         src_tmp.Rects = NULL;
@@ -683,8 +691,7 @@ bool ImFontAtlasBuildWithFreeTypeEx(FT_Library ft_library, ImFontAtlas* atlas, u
     // Cleanup
     for (int buf_i = 0; buf_i < buf_bitmap_buffers.Size; buf_i++)
         IM_FREE(buf_bitmap_buffers[buf_i]);
-    for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
-        src_tmp_array[src_i].~ImFontBuildSrcDataFT();
+    src_tmp_array.clear_destruct();
 
     ImFontAtlasBuildFinish(atlas);
 

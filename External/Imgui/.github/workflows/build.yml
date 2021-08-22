@@ -204,7 +204,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libglfw3-dev libsdl2-dev gcc-multilib g++-multilib libfreetype6-dev
+        sudo apt-get install -y libglfw3-dev libsdl2-dev gcc-multilib g++-multilib libfreetype6-dev libvulkan-dev
 
     - name: Build example_null (extra warnings, gcc 32-bit)
       run: |
@@ -254,10 +254,11 @@ jobs:
         EOF
         g++ -I. -Wall -Wformat -o example_single_file example_single_file.cpp
 
-    - name: Build example_null (with large ImDrawIdx)
+    - name: Build example_null (with large ImDrawIdx + pointer ImTextureID)
       run: |
         cat > example_single_file.cpp <<'EOF'
 
+        #define ImTextureID void*
         #define ImDrawIdx unsigned int
         #define IMGUI_IMPLEMENTATION
         #include "misc/single_file/imgui_single_file.h"
@@ -361,6 +362,9 @@ jobs:
     - name: Build example_sdl_opengl3
       run: make -C examples/example_sdl_opengl3
 
+    - name: Build with IMGUI_IMPL_VULKAN_NO_PROTOTYPES
+      run: g++ -c -I. -DIMGUI_IMPL_VULKAN_NO_PROTOTYPES=1 backends/imgui_impl_vulkan.cpp
+
   MacOS:
     runs-on: macos-latest
     steps:
@@ -458,10 +462,20 @@ jobs:
         popd
         make -C examples/example_emscripten_wgpu
 
+  Android:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build example_android_opengl3
+      run: |
+        cd examples/example_android_opengl3/android
+        gradle assembleDebug
+
   Discord-CI:
     runs-on: ubuntu-18.04
     if: always()
-    needs: [Windows, Linux, MacOS, iOS, Emscripten]
+    needs: [Windows, Linux, MacOS, iOS, Emscripten, Android]
     steps:
     - uses: dearimgui/github_discord_notifier@latest
       with:

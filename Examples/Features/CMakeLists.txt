@@ -24,14 +24,14 @@ set(
 	"SetUiFont.cpp"
 	"SetUiFont.h"
 )
-add_executable(Features WIN32 MACOSX_BUNDLE ${source_list})
-target_link_libraries(Features PRIVATE ImFrame)
+add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${source_list})
+target_link_libraries(${PROJECT_NAME} PRIVATE ImFrame)
 
 # Set compiler options
 if(MSVC)
-	target_compile_options(Features PRIVATE /W4 /WX)
+	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
-	target_compile_options(Features PRIVATE -Wall -Wextra -pedantic -Werror)
+	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 # Create folder structure

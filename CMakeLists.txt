@@ -71,6 +71,7 @@ set(
 	"Source/ImGui/imgui_impl_glfw.h"
 	"Source/ImGui/imgui_impl_opengl3.cpp"
 	"Source/ImGui/imgui_impl_opengl3.h"
+	"Source/ImGui/imgui_impl_opengl3_loader.h"
 )
 if(WIN32)
 	list(APPEND source_list "Source/WinPC/WinPCUtilities.cpp")
