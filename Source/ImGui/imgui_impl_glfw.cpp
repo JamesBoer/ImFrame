@@ -911,7 +911,6 @@ enum VkResult { VK_RESULT_MAX_ENUM = 0x7FFFFFFF };
 extern "C" { extern GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window, const VkAllocationCallbacks* allocator, VkSurfaceKHR* surface); }
 static int ImGui_ImplGlfw_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData;
     IM_ASSERT(bd->ClientApi == GlfwClientApi_Vulkan);
     VkResult err = glfwCreateWindowSurface((VkInstance)vk_instance, vd->Window, (const VkAllocationCallbacks*)vk_allocator, (VkSurfaceKHR*)out_vk_surface);
