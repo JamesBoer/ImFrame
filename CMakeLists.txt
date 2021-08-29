@@ -25,6 +25,8 @@ add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 option(IMFRAME_BUILD_STB "Build stb library" ON)
 
 # Set some specific glfw options
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
 
