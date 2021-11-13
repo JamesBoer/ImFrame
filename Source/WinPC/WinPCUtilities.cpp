@@ -22,7 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#if defined(_MSC_VER)
 #include <SDKDDKVer.h>
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Shlobj.h>

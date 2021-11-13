@@ -27,8 +27,10 @@ THE SOFTWARE.
 // Platform definitions
 #if defined(_WIN32) || defined(_WIN64)
 #define IMFRAME_WINDOWS
+#if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 4530) // Silence warnings if exceptions are disabled
+#endif
 #endif
 #if defined(__linux__) || defined(__linux)
 #define IMFRAME_LINUX
