@@ -28,12 +28,13 @@
 
 //---- Don't define obsolete functions/enums/behaviors. Consider enabling from time to time after updating to avoid using soon-to-be obsolete function/names.
 //#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+//#define IMGUI_DISABLE_OBSOLETE_KEYIO                      // 1.87: disable legacy io.KeyMap[]+io.KeysDown[] in favor io.AddKeyEvent(). This will be folded into IMGUI_DISABLE_OBSOLETE_FUNCTIONS in a few versions.
 
 //---- Disable all of Dear ImGui or don't implement standard windows.
 // It is very strongly recommended to NOT disable the demo windows during development. Please read comments in imgui_demo.cpp.
 //#define IMGUI_DISABLE                                     // Disable everything: all headers and source files will be empty.
 //#define IMGUI_DISABLE_DEMO_WINDOWS                        // Disable demo windows: ShowDemoWindow()/ShowStyleEditor() will be empty. Not recommended.
-//#define IMGUI_DISABLE_METRICS_WINDOW                      // Disable metrics/debugger window: ShowMetricsWindow() will be empty.
+//#define IMGUI_DISABLE_METRICS_WINDOW                      // Disable metrics/debugger and other debug tools: ShowMetricsWindow() and ShowStackToolWindow() will be empty.
 
 //---- Don't implement some functions to reduce linkage requirements.
 //#define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCTIONS   // [Win32] Don't implement default clipboard handler. Won't use and link with OpenClipboard/GetClipboardData/CloseClipboard etc. (user32.lib/.a, kernel32.lib/.a)
@@ -80,12 +81,12 @@
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
 /*
-#define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \
+#define IM_VEC2_CLASS_EXTRA                                                     \
+        constexpr ImVec2(const MyVec2& f) : x(f.x), y(f.y) {}                   \
         operator MyVec2() const { return MyVec2(x,y); }
 
-#define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
+#define IM_VEC4_CLASS_EXTRA                                                     \
+        constexpr ImVec4(const MyVec4& f) : x(f.x), y(f.y), z(f.z), w(f.w) {}   \
         operator MyVec4() const { return MyVec4(x,y,z,w); }
 */
 

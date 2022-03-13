@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{57E2DF5A-6FC8-45BB-99DD-91A18C646E80}</ProjectGuid>
-    <RootNamespace>example_glfw_vulkan</RootNamespace>
+    <ProjectGuid>{2AE17FDE-F7F3-4CAC-ADAB-0710EDA4F741}</ProjectGuid>
+    <RootNamespace>example_sdl_sdlrenderer</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -90,13 +90,12 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%VULKAN_SDK%\include;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;..\..\backends;%SDL2_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%VULKAN_SDK%\lib32;..\libs\glfw\lib-vc2010-32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%SDL2_DIR%\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -105,13 +104,12 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%VULKAN_SDK%\include;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;..\..\backends;%SDL2_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%VULKAN_SDK%\lib;..\libs\glfw\lib-vc2010-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%SDL2_DIR%\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -122,16 +120,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%VULKAN_SDK%\include;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\backends;%SDL2_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%VULKAN_SDK%\lib32;..\libs\glfw\lib-vc2010-32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%SDL2_DIR%\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -143,16 +140,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..;..\..\backends;%VULKAN_SDK%\include;..\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;..\..\backends;%SDL2_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PreprocessorDefinitions>ImTextureID=ImU64;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%VULKAN_SDK%\lib;..\libs\glfw\lib-vc2010-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%SDL2_DIR%\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -164,16 +160,16 @@
     <ClCompile Include="..\..\imgui_draw.cpp" />
     <ClCompile Include="..\..\imgui_tables.cpp" />
     <ClCompile Include="..\..\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\backends\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\..\backends\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="..\..\backends\imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="..\..\backends\imgui_impl_sdl.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\imconfig.h" />
     <ClInclude Include="..\..\imgui.h" />
     <ClInclude Include="..\..\imgui_internal.h" />
-    <ClInclude Include="..\..\backends\imgui_impl_glfw.h" />
-    <ClInclude Include="..\..\backends\imgui_impl_vulkan.h" />
+    <ClInclude Include="..\..\backends\imgui_impl_sdlrenderer.h" />
+    <ClInclude Include="..\..\backends\imgui_impl_sdl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\misc\debuggers\imgui.natvis" />
