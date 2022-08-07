@@ -90,10 +90,10 @@ namespace ImFrame
 	const uint32_t MajorVersion = 0;
 
 	/// Minor version number
-	const uint32_t MinorVersion = 0;
+	const uint32_t MinorVersion = 1;
 
 	/// Patch number
-	const uint32_t PatchNumber = 1;
+	const uint32_t PatchNumber = 0;
 
 	/// Get ImFrame version in string form for easier display
 	std::string GetVersionString();
