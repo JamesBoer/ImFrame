@@ -156,7 +156,7 @@ void MainApp::Open()
 	auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
 	if (path)
 	{
-		auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
+		auto ret = ImFrame::LoadTexture(path.value().string().c_str());
 		if (ret)
 		{
 			if (m_texture.textureID)
