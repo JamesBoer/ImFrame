@@ -90,10 +90,10 @@ namespace ImFrame
 	const uint32_t MajorVersion = 0;
 
 	/// Minor version number
-	const uint32_t MinorVersion = 0;
+	const uint32_t MinorVersion = 1;
 
 	/// Patch number
-	const uint32_t PatchNumber = 1;
+	const uint32_t PatchNumber = 0;
 
 	/// Get ImFrame version in string form for easier display
 	std::string GetVersionString();
@@ -146,13 +146,22 @@ namespace ImFrame
 	std::array<float, 3> GetBackgroundColor();
 
 	// Images / Textures
+	struct ImageInfo
+	{
+		std::vector<uint8_t> data;
+		int width{};
+		int height{};
+		int channels{};
+	};
 	struct TextureInfo
 	{
 		GLuint textureID{};
 		int width{};
 		int height{};
 	};
-	std::optional<TextureInfo> LoadTextureFromFile(const char * filename);
+	std::optional<ImageInfo> LoadImage(const char * filename);
+	std::optional<TextureInfo> LoadTexture(const char * filename);
+	std::optional<TextureInfo> LoadTexture(const ImageInfo& image);
 
 	// UI Fonts
 	enum class FontType

@@ -141,7 +141,7 @@ void MainApp::OnUpdate()
 		SetUiFont(&m_setUiFont);
 	if (m_showTexture)
 	{
-		if (ImGui::Begin("OpenGL Texture Text", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
+		if (ImGui::Begin("OpenGL Texture Test", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
 		{
 			ImGui::Text("textureID = %i", m_texture.textureID);
 			ImGui::Text("size = %d x %d", m_texture.width, m_texture.height);
@@ -156,7 +156,7 @@ void MainApp::Open()
 	auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
 	if (path)
 	{
-		auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
+		auto ret = ImFrame::LoadTexture(path.value().string().c_str());
 		if (ret)
 		{
 			if (m_texture.textureID)
