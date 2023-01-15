@@ -47,5 +47,6 @@ namespace Features
 		bool m_setUiFont = false;
 		ImFrame::TextureInfo m_texture;
 		bool m_showTexture = false;
+        bool m_showAbout = false;
 	};
 }

@@ -53,7 +53,7 @@ namespace ImFrame
 #ifdef IMFRAME_MACOS
     bool OsBeginMainMenuBar();
     void OsEndMainMenuBar();
-    bool OsBeginMenu(const char * label, bool enabled);
+    bool OsBeginMenu(const char * label, bool enabled, bool helpMenu);
     void OsEndMenu();
     bool OsMenuItem(const char * label, const char * shortcut, bool selected, bool enabled);
     bool OsMenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled);

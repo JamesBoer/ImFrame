@@ -66,6 +66,7 @@ namespace ImFrame
     static NSInteger s_currentTagId = 1;
     static bool s_buildMenus = true;
     static bool s_clearMenus = false;
+    static bool s_hasHelpMenu = false;
 
 	std::filesystem::path OsGetConfigFolder()
 	{
@@ -130,6 +131,10 @@ namespace ImFrame
         NSUInteger checkedCount = s_menus.back().idx + 1;
         if (s_clearMenus || mainMenuBar.itemArray.count != checkedCount)
         {
+            // If we have a help menu, it's the last item in the index
+            if (s_hasHelpMenu)
+                [mainMenuBar removeItemAtIndex:(mainMenuBar.itemArray.count - 1)];
+            
             // This is sort of weird, I know.  We want to preserve the first
             // and last menus ("AppName" and Window), which we didn't create.
             // But we need to clear everything between those two.  Thus, the
@@ -141,10 +146,11 @@ namespace ImFrame
             // trigger a rebuild pass on the next update.
             s_clearMenus = false;
             s_buildMenus = true;
+            s_hasHelpMenu = false;
         }
     }
 
-    bool OsBeginMenu(const char * label, bool enabled)
+    bool OsBeginMenu(const char * label, bool enabled, bool helpMenu)
     {
         if (s_clearMenus)
             return false;
@@ -158,10 +164,18 @@ namespace ImFrame
         NSUInteger loc = [labelStr rangeOfString:@"##"].location;
         if (loc < [labelStr length])
             labelStr = [labelStr substringToIndex:loc];
+        
+        // Increment the index value for the help menu to force it
+        // to the right of the auto-populated Window menu.
+        if (helpMenu)
+            ++idx;
 
         // Create a new menuitem and add to menu
         if (s_buildMenus)
         {
+            // The help menu must be the last menu
+            assert(!s_hasHelpMenu);
+            
             // New submenus consist of both a new menu and a new menuitem to trigger it
             NSMenu * newMenu = [[NSMenu new] autorelease];
             newMenu.autoenablesItems = false;
@@ -187,6 +201,8 @@ namespace ImFrame
         // Push this menu on the stack for tracking purposes
         s_menus.push_back(MenuState());
         s_menus.back().menu = menuItem.submenu;
+        if (helpMenu)
+            s_hasHelpMenu = true;
         
         // Unlike Dear ImGui menus, we typically return true so clicks can be checked any any menuitem
         return true;
@@ -219,7 +235,7 @@ namespace ImFrame
         NSUInteger loc = [labelStr rangeOfString:@"##"].location;
         if (loc < [labelStr length])
             labelStr = [labelStr substringToIndex:loc];
-            
+        
         // If we're in a building pass, create new NSMenuItem and insert into menu
         if (s_buildMenus)
         {

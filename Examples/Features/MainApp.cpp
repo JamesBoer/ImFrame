@@ -126,6 +126,12 @@ void MainApp::OnUpdate()
             }
             ImFrame::EndMenu();
         }
+        if (ImFrame::BeginMenu("Help", true, true)) // We need to set a flag for the Help menu
+        {
+            if (ImFrame::MenuItem("About", nullptr))
+                m_showAbout = true;
+            ImFrame::EndMenu();
+        }
         ImFrame::EndMainMenuBar();
 	}
 
@@ -149,6 +155,25 @@ void MainApp::OnUpdate()
 		}
 		ImGui::End();
 	}
+    
+    if (m_showAbout)
+    {
+        ImGui::OpenPopup("About Features");
+        // Always center this window when appearing
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        //bool open = false;
+        if (ImGui::BeginPopupModal("About Features", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Features demonstrates a variety of ImFrame functionality.");
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+                m_showAbout = false;
+            }
+            ImGui::EndPopup();
+        }
+    }
 }
 
 void MainApp::Open()

@@ -553,10 +553,10 @@ namespace ImFrame
 #endif
     }
 
-    bool BeginMenu(const char * label, bool enabled)
+    bool BeginMenu(const char * label, bool enabled, [[maybe_unused]]bool helpMenu)
     {
 #if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
-        return OsBeginMenu(label, enabled);
+        return OsBeginMenu(label, enabled, helpMenu);
 #else
         return ImGui::BeginMenu(label, enabled);
 #endif
