@@ -40,6 +40,7 @@ namespace Features
 		void PickFolder();
 
         bool m_showExtraMenu = false;
+        bool m_showHelpTopics = false;
         bool m_showGlDemo = false;
 		bool m_showImGuiDemo = false;
 		bool m_showImPlotDemo = false;

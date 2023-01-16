@@ -31,6 +31,7 @@ MainApp::MainApp(GLFWwindow * window) :
 {
 	InitGlDemo();
 	m_showExtraMenu = ImFrame::GetConfigValue("show", "extramenu", m_showExtraMenu);
+    m_showHelpTopics = ImFrame::GetConfigValue("show", "helptopics", m_showHelpTopics);
 	m_showGlDemo = ImFrame::GetConfigValue("show", "gldemo", m_showGlDemo);
 	m_showImGuiDemo = ImFrame::GetConfigValue("show", "imguidemo", m_showImGuiDemo);
 	m_showImPlotDemo = ImFrame::GetConfigValue("show", "implotdemo", m_showImPlotDemo);
@@ -39,6 +40,7 @@ MainApp::MainApp(GLFWwindow * window) :
 MainApp::~MainApp()
 {
 	ImFrame::SetConfigValue("show", "extramenu", m_showExtraMenu);
+    ImFrame::SetConfigValue("show", "helptopics", m_showHelpTopics);
 	ImFrame::SetConfigValue("show", "gldemo", m_showGlDemo);
 	ImFrame::SetConfigValue("show", "imguidemo", m_showImGuiDemo);
 	ImFrame::SetConfigValue("show", "implotdemo", m_showImPlotDemo);
@@ -126,12 +128,30 @@ void MainApp::OnUpdate()
             }
             ImFrame::EndMenu();
         }
-        if (ImFrame::BeginMenu("Help", true, true)) // We need to set a flag for the Help menu
+        
+        if (ImFrame::BeginHelpMenu("Help", true))
         {
+            ImFrame::MenuItem("Show Help Topics", nullptr, &m_showHelpTopics);
+            if (m_showHelpTopics)
+            {
+                if (ImFrame::BeginMenu("Help topics", true))
+                {
+                    ImFrame::MenuItem("Topic a", nullptr);
+                    ImFrame::MenuItem("Topic b", nullptr);
+                    if (ImFrame::BeginMenu("Help sub-topics", true))
+                    {
+                        ImFrame::MenuItem("Subtopic 1", nullptr);
+                        ImFrame::MenuItem("Subtopic 2", nullptr);
+                        ImFrame::EndMenu();
+                    }
+                    ImFrame::EndMenu();
+                }
+            }
             if (ImFrame::MenuItem("About", nullptr))
                 m_showAbout = true;
             ImFrame::EndMenu();
         }
+        
         ImFrame::EndMainMenuBar();
 	}
 

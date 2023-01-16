@@ -64,6 +64,7 @@ namespace ImFrame
     static MenuItemHandler * s_menuHandler;
     static std::vector<MenuState> s_menus;
     static NSInteger s_currentTagId = 1;
+    static NSUInteger s_windowMenuIndex = 0;
     static bool s_buildMenus = true;
     static bool s_clearMenus = false;
     static bool s_hasHelpMenu = false;
@@ -131,10 +132,13 @@ namespace ImFrame
         NSUInteger checkedCount = s_menus.back().idx + 1;
         if (s_clearMenus || mainMenuBar.itemArray.count != checkedCount)
         {
-            // If we have a help menu, it's the last item in the index
+            // If we have a help menu, they exist past the window menu index
             if (s_hasHelpMenu)
-                [mainMenuBar removeItemAtIndex:(mainMenuBar.itemArray.count - 1)];
-            
+            {
+                while (mainMenuBar.itemArray.count > s_windowMenuIndex + 1)
+                    [mainMenuBar removeItemAtIndex:(mainMenuBar.itemArray.count - 1)];
+            }
+                
             // This is sort of weird, I know.  We want to preserve the first
             // and last menus ("AppName" and Window), which we didn't create.
             // But we need to clear everything between those two.  Thus, the
@@ -168,13 +172,18 @@ namespace ImFrame
         // Increment the index value for the help menu to force it
         // to the right of the auto-populated Window menu.
         if (helpMenu)
+        {
+            s_hasHelpMenu = true;
+            if (s_buildMenus)
+                s_windowMenuIndex = idx;
             ++idx;
+        }
 
         // Create a new menuitem and add to menu
         if (s_buildMenus)
         {
-            // The help menu must be the last menu
-            assert(!s_hasHelpMenu);
+            // Only allowed one marked help menu, which will skip an index value
+            assert(!helpMenu || s_hasHelpMenu);
             
             // New submenus consist of both a new menu and a new menuitem to trigger it
             NSMenu * newMenu = [[NSMenu new] autorelease];
@@ -201,8 +210,6 @@ namespace ImFrame
         // Push this menu on the stack for tracking purposes
         s_menus.push_back(MenuState());
         s_menus.back().menu = menuItem.submenu;
-        if (helpMenu)
-            s_hasHelpMenu = true;
         
         // Unlike Dear ImGui menus, we typically return true so clicks can be checked any any menuitem
         return true;

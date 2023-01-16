@@ -195,7 +195,8 @@ namespace ImFrame
     // ImGui / macOS native menu wrappers
     bool BeginMainMenuBar();
     void EndMainMenuBar();
-    bool BeginMenu(const char * label, bool enabled = true, bool helpMenu = false);
+    bool BeginMenu(const char * label, bool enabled = true);
+    bool BeginHelpMenu(const char * label, bool enabled = true);
     void EndMenu();
     bool MenuItem(const char * label, const char * shortcut, bool selected = false, bool enabled = true);
     bool MenuItem(const char * label, const char * shortcut, bool * p_selected, bool enabled = true);
