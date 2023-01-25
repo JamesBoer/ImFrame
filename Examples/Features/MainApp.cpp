@@ -31,6 +31,7 @@ MainApp::MainApp(GLFWwindow * window) :
 {
 	InitGlDemo();
 	m_showExtraMenu = ImFrame::GetConfigValue("show", "extramenu", m_showExtraMenu);
+    m_showHelpTopics = ImFrame::GetConfigValue("show", "helptopics", m_showHelpTopics);
 	m_showGlDemo = ImFrame::GetConfigValue("show", "gldemo", m_showGlDemo);
 	m_showImGuiDemo = ImFrame::GetConfigValue("show", "imguidemo", m_showImGuiDemo);
 	m_showImPlotDemo = ImFrame::GetConfigValue("show", "implotdemo", m_showImPlotDemo);
@@ -39,6 +40,7 @@ MainApp::MainApp(GLFWwindow * window) :
 MainApp::~MainApp()
 {
 	ImFrame::SetConfigValue("show", "extramenu", m_showExtraMenu);
+    ImFrame::SetConfigValue("show", "helptopics", m_showHelpTopics);
 	ImFrame::SetConfigValue("show", "gldemo", m_showGlDemo);
 	ImFrame::SetConfigValue("show", "imguidemo", m_showImGuiDemo);
 	ImFrame::SetConfigValue("show", "implotdemo", m_showImPlotDemo);
@@ -126,6 +128,30 @@ void MainApp::OnUpdate()
             }
             ImFrame::EndMenu();
         }
+        
+        if (ImFrame::BeginHelpMenu("Help", true))
+        {
+            ImFrame::MenuItem("Show Help Topics", nullptr, &m_showHelpTopics);
+            if (m_showHelpTopics)
+            {
+                if (ImFrame::BeginMenu("Help topics", true))
+                {
+                    ImFrame::MenuItem("Topic a", nullptr);
+                    ImFrame::MenuItem("Topic b", nullptr);
+                    if (ImFrame::BeginMenu("Help sub-topics", true))
+                    {
+                        ImFrame::MenuItem("Subtopic 1", nullptr);
+                        ImFrame::MenuItem("Subtopic 2", nullptr);
+                        ImFrame::EndMenu();
+                    }
+                    ImFrame::EndMenu();
+                }
+            }
+            if (ImFrame::MenuItem("About", nullptr))
+                m_showAbout = true;
+            ImFrame::EndMenu();
+        }
+        
         ImFrame::EndMainMenuBar();
 	}
 
@@ -141,7 +167,7 @@ void MainApp::OnUpdate()
 		SetUiFont(&m_setUiFont);
 	if (m_showTexture)
 	{
-		if (ImGui::Begin("OpenGL Texture Text", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
+		if (ImGui::Begin("OpenGL Texture Test", &m_showTexture, ImGuiWindowFlags_HorizontalScrollbar))
 		{
 			ImGui::Text("textureID = %i", m_texture.textureID);
 			ImGui::Text("size = %d x %d", m_texture.width, m_texture.height);
@@ -149,6 +175,25 @@ void MainApp::OnUpdate()
 		}
 		ImGui::End();
 	}
+    
+    if (m_showAbout)
+    {
+        ImGui::OpenPopup("About Features");
+        // Always center this window when appearing
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        //bool open = false;
+        if (ImGui::BeginPopupModal("About Features", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Features demonstrates a variety of ImFrame functionality.");
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+                m_showAbout = false;
+            }
+            ImGui::EndPopup();
+        }
+    }
 }
 
 void MainApp::Open()
@@ -156,7 +201,7 @@ void MainApp::Open()
 	auto path = ImFrame::OpenFileDialog({ {"Image files", "png,jpg" } }, nullptr);
 	if (path)
 	{
-		auto ret = ImFrame::LoadTextureFromFile(path.value().string().c_str());
+		auto ret = ImFrame::LoadTexture(path.value().string().c_str());
 		if (ret)
 		{
 			if (m_texture.textureID)

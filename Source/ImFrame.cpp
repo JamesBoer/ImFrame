@@ -392,16 +392,35 @@ namespace ImFrame
         return s_data->backgroundColor;
     }
 
-	// Simple helper function to load an image into a OpenGL texture with common settings
-	std::optional<TextureInfo> LoadTextureFromFile(const char * filename)
+	// Simple helper function to load an image from disk
+	std::optional<ImageInfo> LoadImage(const char* filename)
 	{
 		// Load from file
-		int image_width = 0;
-		int image_height = 0;
-		unsigned char * image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+		ImageInfo image;
+		unsigned char* image_data = stbi_load(filename, &image.width, &image.height, NULL, 4);
 		if (image_data == NULL)
-			return std::optional<TextureInfo>();
+			return std::optional<ImageInfo>();
+		image.channels = 4;
+		uint8_t * bytes = reinterpret_cast<uint8_t*>(image_data);
+		size_t size = static_cast<size_t>(image.width * image.height * image.channels);
+		image.data.reserve(size);
+		std::copy(bytes, &bytes[size], std::back_inserter(image.data));
+		stbi_image_free(image_data);
+		return image;
+	}
 
+	// Simple helper function to load an image from disk into a OpenGL texture with common settings
+	std::optional<TextureInfo> LoadTexture(const char * filename)
+	{
+		auto image = LoadImage(filename);
+		if (!image)
+			return std::optional<TextureInfo>();
+		return LoadTexture(image.value());
+	}
+
+	// Simple helper function to load an image into a OpenGL texture with common settings
+	std::optional<TextureInfo> LoadTexture(const ImageInfo& image)
+	{
 		// Create a OpenGL texture identifier
 		GLuint image_texture;
 		glGenTextures(1, &image_texture);
@@ -417,10 +436,10 @@ namespace ImFrame
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-		stbi_image_free(image_data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, static_cast<const void *>(image.data.data()));
 
-		return TextureInfo { image_texture, image_width, image_height };
+		return TextureInfo{ image_texture, image.width, image.height };
+
 	}
 
 	bool IsCustomFontEnabled()
@@ -537,7 +556,16 @@ namespace ImFrame
     bool BeginMenu(const char * label, bool enabled)
     {
 #if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
-        return OsBeginMenu(label, enabled);
+        return OsBeginMenu(label, enabled, false);
+#else
+        return ImGui::BeginMenu(label, enabled);
+#endif
+    }
+
+    bool BeginHelpMenu(const char * label, bool enabled)
+    {
+#if defined(IMFRAME_MACOS) && defined(IMFRAME_MACOS_MENUS)
+        return OsBeginMenu(label, enabled, true);
 #else
         return ImGui::BeginMenu(label, enabled);
 #endif
@@ -602,9 +630,10 @@ namespace ImFrame
 		{
 			return 1;
 		}
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		GLFWwindow * window = glfwCreateWindow(s_data->windowWidth, s_data->windowHeight, appName.c_str(), NULL, NULL);
 		if (!window)
 		{

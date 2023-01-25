@@ -26,6 +26,10 @@ set(
 # Create executable file as project name
 add_library(${PROJECT_NAME} ${source_list})
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-deprecated-declarations)
+endif()
+
 # Create folder structure
 foreach(source IN LISTS source_list)
     source_group("Source" FILES "${source}")

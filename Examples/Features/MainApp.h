@@ -40,6 +40,7 @@ namespace Features
 		void PickFolder();
 
         bool m_showExtraMenu = false;
+        bool m_showHelpTopics = false;
         bool m_showGlDemo = false;
 		bool m_showImGuiDemo = false;
 		bool m_showImPlotDemo = false;
@@ -47,5 +48,6 @@ namespace Features
 		bool m_setUiFont = false;
 		ImFrame::TextureInfo m_texture;
 		bool m_showTexture = false;
+        bool m_showAbout = false;
 	};
 }
